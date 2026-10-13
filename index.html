@@ -295,15 +295,21 @@
             <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
-                        <h3 class="text-lg font-bold">Simulateur de Projections Avancées (10 ans)</h3>
-                        <p class="text-xs text-slate-400 mt-1">Projection de capital basée sur vos actifs et votre taux de rendement boursier annuel.</p>
+                        <h3 class="text-lg font-bold">Simulateur de Projections Avancées (Jusqu'à 50 ans)</h3>
+                        <p class="text-xs text-slate-400 mt-1">Projection à long terme basée sur vos rendements et votre investissement mensuel.</p>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <label class="text-xs text-slate-400">Rendement Bourse (%) :</label>
-                        <input type="number" id="projection-rate" value="8" onchange="renderCharts()" class="w-20 bg-dark-950 border border-dark-700 rounded-lg p-1.5 text-sm text-white text-center font-bold">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Investissement / mois (€) :</label>
+                            <input type="number" id="projection-monthly" value="500" onchange="renderCharts()" class="w-28 bg-dark-950 border border-dark-700 rounded-lg p-1.5 text-sm text-white text-center font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Rendement Annuel (%) :</label>
+                            <input type="number" id="projection-rate" value="8" onchange="renderCharts()" class="w-24 bg-dark-950 border border-dark-700 rounded-lg p-1.5 text-sm text-white text-center font-bold">
+                        </div>
                     </div>
                 </div>
-                <div class="h-80 relative"><canvas id="simulationChart"></canvas></div>
+                <div class="h-96 relative"><canvas id="simulationChart"></canvas></div>
             </div>
         </section>
 
@@ -654,7 +660,7 @@
             document.getElementById('sum-income').innerText = totalIncome.toLocaleString() + ' €';
             document.getElementById('sum-expenses').innerText = (totalExpenses + totalMonthlyDebt).toLocaleString() + ' €';
 
-            document.getElementById('ai-advice').innerText = `Vos données sont synchronisées. Les livrets calculent leurs intérêts annuels selon leur taux.`;
+            document.getElementById('ai-advice').innerText = `Vos données sont synchronisées. Le simulateur prend en compte votre investissement mensuel additionnel sur 50 ans.`;
 
             renderCharts();
         }
@@ -736,19 +742,20 @@
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#334155' } }, y: { grid: { color: '#334155' } } } }
             });
 
+            // Projection sur 50 ans avec investissement mensuel
             const simRate = parseFloat(document.getElementById('projection-rate').value) / 100 || 0.08;
-            const simLabels = Array.from({ length: 11 }, (_, i) => `Année +${i}`);
+            const monthlyInvestment = parseFloat(document.getElementById('projection-monthly').value) || 0;
+            const simLabels = Array.from({ length: 51 }, (_, i) => `Année +${i}`);
             let baseCapital = db.assets.reduce((a,b)=>a+b.totalVal,0) - db.debts.reduce((a,b)=>a+b.capital,0);
-            const totalInc = db.budget.income.reduce((a,b)=>a+b.amount,0);
-            const totalMonthlyDebtActive = db.debts.reduce((acc, d) => acc + ((d.deferment || 0) > 0 ? 0 : d.monthly), 0);
-            const totalExp = db.budget.expense.reduce((a,b)=>a+b.amount,0) + totalMonthlyDebtActive;
-            const annualSavings = (totalInc - totalExp) * 12;
 
             const simData = [];
             let currentCap = baseCapital;
-            for (let i = 0; i <= 10; i++) {
+            for (let i = 0; i <= 50; i++) {
                 simData.push(Math.round(currentCap));
-                currentCap = (currentCap + annualSavings) * (1 + simRate);
+                // Capitalisation annuelle composée + ajouts mensuels réguliers
+                for (let m = 0; m < 12; m++) {
+                    currentCap = (currentCap + monthlyInvestment) * (1 + simRate / 12);
+                }
             }
 
             const simCtx = document.getElementById('simulationChart').getContext('2d');
@@ -758,7 +765,7 @@
                 data: {
                     labels: simLabels,
                     datasets: [{
-                        label: 'Projection Capital',
+                        label: 'Projection Capital (50 ans)',
                         data: simData,
                         borderColor: '#6366f1',
                         backgroundColor: 'rgba(99, 102, 241, 0.1)',
