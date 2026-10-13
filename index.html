@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTracker - Gestion de Patrimoine & Budget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155', 600: '#475569' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-dark-800 border-b border-dark-700 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-xl text-white font-bold text-xl shadow-lg shadow-indigo-500/30">FT</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">FinTracker</h1>
+                    <p class="text-xs text-slate-400">Gestion de patrimoine & budget</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span id="save-status" class="text-xs text-emerald-400 hidden sm:inline">● Sauvegardé</span>
+                <button onclick="manualSave()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow">Sauvegarder</button>
+                <button onclick="exportData()" class="bg-dark-700 hover:bg-dark-600 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition">Exporter JSON</button>
+                <label class="bg-dark-700 hover:bg-dark-600 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">
+                    Importer JSON
+                    <input type="file" id="import-file" onchange="importData(event)" class="hidden" accept=".json">
+                </label>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 flex space-x-1 overflow-x-auto pb-2">
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition bg-dark-700 text-white border-b-2 border-indigo-500">Tableau de bord</button>
+            <button onclick="switchTab('portfolios')" id="btn-portfolios" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Actifs & Portefeuilles</button>
+            <button onclick="switchTab('debts')" id="btn-debts" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Dettes & Prêts</button>
+            <button onclick="switchTab('budget')" id="btn-budget" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Budget & Cashflow</button>
+            <button onclick="switchTab('analytics')" id="btn-analytics" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Projections & Graphiques</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
+        <!-- ONGLET 1 : TABLEAU DE BORD -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-dark-800 p-5 rounded-2xl border border-dark-700 shadow">
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Patrimoine Net Total</p>
+                    <p id="kpi-net-worth" class="text-2xl font-extrabold text-white mt-1">0 €</p>
+                </div>
+                <div class="bg-dark-800 p-5 rounded-2xl border border-dark-700 shadow">
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Actifs Bruts</p>
+                    <p id="kpi-assets" class="text-2xl font-extrabold text-emerald-400 mt-1">0 €</p>
+                </div>
+                <div class="bg-dark-800 p-5 rounded-2xl border border-dark-700 shadow">
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Dettes</p>
+                    <p id="kpi-debts" class="text-2xl font-extrabold text-rose-400 mt-1">0 €</p>
+                </div>
+                <div class="bg-dark-800 p-5 rounded-2xl border border-dark-700 shadow">
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Épargne Mensuelle</p>
+                    <p id="kpi-savings" class="text-2xl font-extrabold text-indigo-400 mt-1">0 €</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 lg:col-span-2 flex flex-col justify-center">
+                    <h3 class="text-base font-bold mb-4">Répartition des Actifs par Catégorie</h3>
+                    <div class="h-64 relative flex justify-center"><canvas id="assetPieChart"></canvas></div>
+                </div>
+                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 flex flex-col justify-center">
+                    <h3 class="text-base font-bold mb-4">Flux Allocation</h3>
+                    <div class="h-64 relative flex justify-center"><canvas id="flowPieChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 2 : ACTIFS -->
+        <section id="tab-portfolios" class="tab-content hidden space-y-6">
+            <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700">
+                <h3 class="text-lg font-bold mb-4">Ajouter un Actif</h3>
+                <form id="asset-form" onsubmit="addAsset(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <select id="asset-cat" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                        <option value="PEA">Bourse (PEA)</option>
+                        <option value="CTO">Bourse (CTO)</option>
+                        <option value="Crypto">Cryptomonnaie</option>
+                        <option value="Immobilier">Immobilier</option>
+                        <option value="Cash">Cash / Compte Courant</option>
+                        <option value="Livret">Livret</option>
+                    </select>
+                    <input type="text" id="asset-name" required placeholder="Nom / Ticker" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <input type="number" step="any" id="asset-qty" placeholder="Quantité / Actions" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <input type="number" step="any" id="asset-unit-val" placeholder="Valeur Unitaire (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <input type="number" step="any" id="asset-val" required placeholder="Valeur Totale (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                </form>
+            </div>
+            <div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-dark-900 text-slate-400 uppercase text-xs">
+                            <th class="p-4">Catégorie</th>
+                            <th class="p-4">Nom</th>
+                            <th class="p-4">Quantité / Parts</th>
+                            <th class="p-4">Valeur Totale</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assets-table-body" class="divide-y divide-dark-700"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ONGLET 3 : DETTES -->
+        <section id="tab-debts" class="tab-content hidden space-y-6">
+            <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700">
+                <h3 class="text-lg font-bold mb-4">Ajouter une Dette</h3>
+                <form id="debt-form" onsubmit="addDebt(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <input type="text" id="debt-name" required placeholder="Nom du Prêt" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <input type="number" step="any" id="debt-capital" required placeholder="Capital Restant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <input type="number" step="any" id="debt-rate" required placeholder="Taux (%)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <input type="number" id="debt-duration" required placeholder="Durée (ans)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <input type="number" id="debt-deferment" value="0" placeholder="Différé (ans)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                </form>
+            </div>
+            <div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-dark-900 text-slate-400 uppercase text-xs">
+                            <th class="p-4">Nom</th>
+                            <th class="p-4">Capital Restant</th>
+                            <th class="p-4">Taux</th>
+                            <th class="p-4">Durée / Différé</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="debts-table-body" class="divide-y divide-dark-700"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ONGLET 4 : BUDGET -->
+        <section id="tab-budget" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 space-y-4">
+                    <h3 class="text-base font-bold text-emerald-400">Revenus Mensuels</h3>
+                    <form onsubmit="addBudgetLine(event, 'income')" class="space-y-3">
+                        <input type="text" id="inc-name" required placeholder="Source" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <input type="number" step="any" id="inc-amount" required placeholder="Montant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-sm font-semibold">Ajouter</button>
+                    </form>
+                    <div id="income-list" class="space-y-2 pt-2 border-t border-dark-700 text-sm max-h-48 overflow-y-auto"></div>
+                </div>
+                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 space-y-4">
+                    <h3 class="text-base font-bold text-rose-400">Dépenses Fixes</h3>
+                    <form onsubmit="addBudgetLine(event, 'fixed')" class="space-y-3">
+                        <input type="text" id="fix-name" required placeholder="Poste" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <input type="number" step="any" id="fix-amount" required placeholder="Montant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-lg text-sm font-semibold">Ajouter</button>
+                    </form>
+                    <div id="fixed-list" class="space-y-2 pt-2 border-t border-dark-700 text-sm max-h-48 overflow-y-auto"></div>
+                </div>
+                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 space-y-4">
+                    <h3 class="text-base font-bold text-amber-400">Dépenses Variables</h3>
+                    <form onsubmit="addBudgetLine(event, 'variable')" class="space-y-3">
+                        <input type="text" id="var-name" required placeholder="Poste" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <input type="number" step="any" id="var-amount" required placeholder="Montant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded-lg text-sm font-semibold">Ajouter</button>
+                    </form>
+                    <div id="variable-list" class="space-y-2 pt-2 border-t border-dark-700 text-sm max-h-48 overflow-y-auto"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 5 : PROJECTIONS -->
+        <section id="tab-analytics" class="tab-content hidden space-y-6">
+            <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 space-y-6">
+                <div>
+                    <h3 class="text-lg font-bold">Courbe d'Amortissement Globale des Dettes</h3>
+                    <p class="text-xs text-slate-400 mt-1">Capital restant dû avec différé horizontal et années calendaires.</p>
+                </div>
+                <div class="h-80 relative"><canvas id="debtAmortizationChart"></canvas></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let db = { assets: [], debts: [], budget: { income: [], fixed: [], variable: [] } };
+        let assetChartInstance = null, flowChartInstance = null, debtChartInstance = null;
+
+        function loadData() {
+            const saved = localStorage.getItem('fintracker_db_v3');
+            if (saved) { try { db = JSON.parse(saved); } catch (e) { console.error(e); } }
+        }
+        function saveData() {
+            try {
+                localStorage.setItem('fintracker_db_v3', JSON.stringify(db));
+                const indicator = document.getElementById('save-status');
+                if (indicator) { indicator.classList.remove('hidden'); setTimeout(() => indicator.classList.add('hidden'), 2000); }
+            } catch (e) { console.error(e); }
+        }
+        function manualSave() { saveData(); alert("Données sauvegardées avec succès !"); }
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "fintracker_backup.json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
+        }
+        function importData(event) {
+            const fr = new FileReader();
+            if (event.target.files[0]) {
+                fr.readAsText(event.target.files[0], "UTF-8");
+                fr.onload = function(e) {
+                    try { db = JSON.parse(e.target.result); saveData(); refreshAll(); alert("Import réussi !"); }
+                    catch (err) { alert("Erreur fichier JSON."); }
+                };
+            }
+        }
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-dark-700', 'text-white', 'border-b-2', 'border-indigo-500');
+                btn.classList.add('text-slate-400');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('bg-dark-700', 'text-white', 'border-b-2', 'border-indigo-500');
+            activeBtn.classList.remove('text-slate-400');
+            if (tabId === 'dashboard' || tabId === 'analytics') renderCharts();
+        }
+        function addAsset(e) {
+            e.preventDefault();
+            const category = document.getElementById('asset-cat').value;
+            const name = document.getElementById('asset-name').value;
+            const qty = parseFloat(document.getElementById('asset-qty').value) || 0;
+            const unitVal = parseFloat(document.getElementById('asset-unit-val').value) || 0;
+            let totalVal = parseFloat(document.getElementById('asset-val').value) || 0;
+            if (qty > 0 && unitVal > 0 && !document.getElementById('asset-val').value) totalVal = qty * unitVal;
+            db.assets.push({ id: Date.now(), category, name, qty, totalVal });
+            saveData(); refreshAll(); document.getElementById('asset-form').reset();
+        }
+        function deleteAsset(id) { db.assets = db.assets.filter(a => a.id !== id); saveData(); refreshAll(); }
+        function addDebt(e) {
+            e.preventDefault();
+            const name = document.getElementById('debt-name').value;
+            const capital = parseFloat(document.getElementById('debt-capital').value);
+            const rate = parseFloat(document.getElementById('debt-rate').value);
+            const duration = parseInt(document.getElementById('debt-duration').value);
+            const deferment = parseInt(document.getElementById('debt-deferment').value) || 0;
+            db.debts.push({ id: Date.now(), name, capital, rate, duration, deferment });
+            saveData(); refreshAll(); document.getElementById('debt-form').reset();
+        }
+        function deleteDebt(id) { db.debts = db.debts.filter(d => d.id !== id); saveData(); refreshAll(); }
+        function addBudgetLine(e, type) {
+            e.preventDefault();
+            let name, amount;
+            if (type === 'income') { name = document.getElementById('inc-name').value; amount = parseFloat(document.getElementById('inc-amount').value); db.budget.income.push({ id: Date.now(), name, amount }); document.getElementById('inc-name').value=''; document.getElementById('inc-amount').value=''; }
+            else if (type === 'fixed') { name = document.getElementById('fix-name').value; amount = parseFloat(document.getElementById('fix-amount').value); db.budget.fixed.push({ id: Date.now(), name, amount }); document.getElementById('fix-name').value=''; document.getElementById('fix-amount').value=''; }
+            else if (type === 'variable') { name = document.getElementById('var-name').value; amount = parseFloat(document.getElementById('var-amount').value); db.budget.variable.push({ id: Date.now(), name, amount }); document.getElementById('var-name').value=''; document.getElementById('var-amount').value=''; }
+            saveData(); refreshAll();
+        }
+        function deleteBudgetLine(type, id) {
+            if (type === 'income') db.budget.income = db.budget.income.filter(i => i.id !== id);
+            if (type === 'fixed') db.budget.fixed = db.budget.fixed.filter(i => i.id !== id);
+            if (type === 'variable') db.budget.variable = db.budget.variable.filter(i => i.id !== id);
+            saveData(); refreshAll();
+        }
+        function refreshAll() {
+            const assetBody = document.getElementById('assets-table-body'); assetBody.innerHTML = '';
+            let totalAssets = 0;
+            db.assets.forEach(a => {
+                totalAssets += a.totalVal;
+                assetBody.innerHTML += `<tr class="hover:bg-dark-700/50"><td class="p-4 font-semibold text-indigo-400">${a.category}</td><td class="p-4">${a.name}</td><td class="p-4">${a.qty || '-'}</td><td class="p-4 font-bold text-emerald-400">${a.totalVal.toLocaleString()} €</td><td class="p-4 text-right"><button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button></td></tr>`;
+            });
+            const debtBody = document.getElementById('debts-table-body'); debtBody.innerHTML = '';
+            let totalDebts = 0;
+            db.debts.forEach(d => {
+                totalDebts += d.capital;
+                debtBody.innerHTML += `<tr class="hover:bg-dark-700/50"><td class="p-4 font-semibold text-white">${d.name}</td><td class="p-4 font-bold text-rose-400">${d.capital.toLocaleString()} €</td><td class="p-4">${d.rate}%</td><td class="p-4">${d.duration} ans (différé: ${d.deferment} ans)</td><td class="p-4 text-right"><button onclick="deleteDebt(${d.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button></td></tr>`;
+            });
+            renderBudgetList('income', db.budget.income, 'text-emerald-400');
+            renderBudgetList('fixed', db.budget.fixed, 'text-rose-400');
+            renderBudgetList('variable', db.budget.variable, 'text-amber-400');
+
+            const totalIncome = db.budget.income.reduce((a,b)=>a+b.amount,0);
+            const totalFixed = db.budget.fixed.reduce((a,b)=>a+b.amount,0);
+            const totalVariable = db.budget.variable.reduce((a,b)=>a+b.amount,0);
+            const monthlySavings = totalIncome - (totalFixed + totalVariable);
+
+            document.getElementById('kpi-net-worth').innerText = (totalAssets - totalDebts).toLocaleString() + ' €';
+            document.getElementById('kpi-assets').innerText = totalAssets.toLocaleString() + ' €';
+            document.getElementById('kpi-debts').innerText = totalDebts.toLocaleString() + ' €';
+            document.getElementById('kpi-savings').innerText = monthlySavings.toLocaleString() + ' €';
+            renderCharts();
+        }
+        function renderBudgetList(type, list, colorClass) {
+            const container = document.getElementById(type + '-list'); container.innerHTML = '';
+            list.forEach(item => {
+                container.innerHTML += `<div class="flex justify-between items-center bg-dark-900 p-2 rounded border border-dark-700"><span>${item.name}</span><div class="flex items-center space-x-2"><span class="font-semibold ${colorClass}">${item.amount.toLocaleString()} €</span><button onclick="deleteBudgetLine('${type}', ${item.id})" class="text-slate-500 hover:text-rose-400">×</button></div></div>`;
+            });
+        }
+        function renderCharts() {
+            const currentYear = new Date().getFullYear();
+            const categories = {};
+            db.assets.forEach(a => { categories[a.category] = (categories[a.category] || 0) + a.totalVal; });
+
+            const assetCtx = document.getElementById('assetPieChart').getContext('2d');
+            if (assetChartInstance) assetChartInstance.destroy();
+            assetChartInstance = new Chart(assetCtx, {
+                type: 'doughnut',
+                data: { labels: Object.keys(categories), datasets: [{ data: Object.values(categories), backgroundColor: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'] }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } } }
+            });
+
+            const totalExp = db.budget.fixed.reduce((a,b)=>a+b.amount,0) + db.budget.variable.reduce((a,b)=>a+b.amount,0);
+            const totalCash = db.assets.filter(a=>a.category==='Cash'||a.category==='Livret').reduce((a,b)=>a+b.totalVal,0);
+            const totalInvest = db.assets.filter(a=>a.category!=='Cash'&&a.category!=='Livret').reduce((a,b)=>a+b.totalVal,0);
+
+            const flowCtx = document.getElementById('flowPieChart').getContext('2d');
+            if (flowChartInstance) flowChartInstance.destroy();
+            flowChartInstance = new Chart(flowCtx, {
+                type: 'pie',
+                data: { labels: ['Dépenses (Annuelles)', 'Investissements', 'Cash & Livrets'], datasets: [{ data: [totalExp * 12, totalInvest, totalCash], backgroundColor: ['#f43f5e', '#6366f1', '#10b981'] }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } } }
+            });
+
+            let maxDuration = 0;
+            db.debts.forEach(d => { if (d.duration > maxDuration) maxDuration = d.duration; });
+            if (maxDuration === 0) maxDuration = 10;
+
+            const yearsLabels = [];
+            for (let i = 0; i <= maxDuration; i++) { yearsLabels.push((currentYear + i).toString()); }
+
+            const debtDatasets = db.debts.map((d, index) => {
+                const dataPoints = [];
+                for (let i = 0; i <= maxDuration; i++) {
+                    if (i <= d.deferment) { dataPoints.push(d.capital); }
+                    else {
+                        const effectiveYears = d.duration - d.deferment;
+                        const elapsed = i - d.deferment;
+                        const remaining = Math.max(0, d.capital * (1 - (elapsed / effectiveYears)));
+                        dataPoints.push(Math.round(remaining));
+                    }
+                }
+                const colors = ['#f43f5e', '#f59e0b', '#8b5cf6', '#3b82f6'];
+                return { label: d.name, data: dataPoints, borderColor: colors[index % colors.length], backgroundColor: colors[index % colors.length], tension: 0.2 };
+            });
+
+            const debtCtx = document.getElementById('debtAmortizationChart').getContext('2d');
+            if (debtChartInstance) debtChartInstance.destroy();
+            debtChartInstance = new Chart(debtCtx, {
+                type: 'line',
+                data: { labels: yearsLabels, datasets: debtDatasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }, y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } } },
+                    plugins: { legend: { labels: { color: '#cbd5e1' } } }
+                }
+            });
+        }
+
+        window.onload = function() { loadData(); refreshAll(); };
+    </script>
+</body>
+</html>
