@@ -86,8 +86,9 @@
         <!-- ONGLET 2 : ACTIFS -->
         <section id="tab-portfolios" class="tab-content hidden space-y-6">
             <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700">
-                <h3 class="text-lg font-bold mb-4">Ajouter un Actif</h3>
-                <form id="asset-form" onsubmit="addAsset(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                <h3 id="asset-form-title" class="text-lg font-bold mb-4">Ajouter un Actif</h3>
+                <form id="asset-form" onsubmit="handleAssetSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <input type="hidden" id="asset-edit-id" value="">
                     <select id="asset-cat" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
                         <option value="PEA">Bourse (PEA)</option>
                         <option value="CTO">Bourse (CTO)</option>
@@ -100,7 +101,7 @@
                     <input type="number" step="any" id="asset-qty" placeholder="Quantité / Actions" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
                     <input type="number" step="any" id="asset-unit-val" placeholder="Valeur Unitaire (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
                     <input type="number" step="any" id="asset-val" required placeholder="Valeur Totale (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                    <button type="submit" id="asset-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
                 </form>
             </div>
             <div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden">
@@ -122,14 +123,15 @@
         <!-- ONGLET 3 : DETTES -->
         <section id="tab-debts" class="tab-content hidden space-y-6">
             <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700">
-                <h3 class="text-lg font-bold mb-4">Ajouter une Dette</h3>
-                <form id="debt-form" onsubmit="addDebt(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                <h3 id="debt-form-title" class="text-lg font-bold mb-4">Ajouter une Dette</h3>
+                <form id="debt-form" onsubmit="handleDebtSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <input type="hidden" id="debt-edit-id" value="">
                     <input type="text" id="debt-name" required placeholder="Nom du Prêt" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
                     <input type="number" step="any" id="debt-capital" required placeholder="Capital Restant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
                     <input type="number" step="any" id="debt-rate" required placeholder="Taux (%)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
                     <input type="number" id="debt-duration" required placeholder="Durée (ans)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
                     <input type="number" id="debt-deferment" value="0" placeholder="Différé (ans)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                    <button type="submit" id="debt-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
                 </form>
             </div>
             <div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden">
@@ -236,29 +238,81 @@
             activeBtn.classList.remove('text-slate-400');
             if (tabId === 'dashboard' || tabId === 'analytics') renderCharts();
         }
-        function addAsset(e) {
+
+        // Gestion Actifs (Ajout & Modification)
+        function handleAssetSubmit(e) {
             e.preventDefault();
+            const editId = document.getElementById('asset-edit-id').value;
             const category = document.getElementById('asset-cat').value;
             const name = document.getElementById('asset-name').value;
             const qty = parseFloat(document.getElementById('asset-qty').value) || 0;
             const unitVal = parseFloat(document.getElementById('asset-unit-val').value) || 0;
             let totalVal = parseFloat(document.getElementById('asset-val').value) || 0;
             if (qty > 0 && unitVal > 0 && !document.getElementById('asset-val').value) totalVal = qty * unitVal;
-            db.assets.push({ id: Date.now(), category, name, qty, totalVal });
+
+            if (editId) {
+                db.assets = db.assets.map(a => a.id == editId ? { ...a, category, name, qty, totalVal } : a);
+                document.getElementById('asset-edit-id').value = '';
+                document.getElementById('asset-form-title').innerText = "Ajouter un Actif";
+                document.getElementById('asset-submit-btn').innerText = "Ajouter";
+            } else {
+                db.assets.push({ id: Date.now(), category, name, qty, totalVal });
+            }
             saveData(); refreshAll(); document.getElementById('asset-form').reset();
         }
+
+        function editAsset(id) {
+            const a = db.assets.find(item => item.id === id);
+            if (!a) return;
+            document.getElementById('asset-edit-id').value = a.id;
+            document.getElementById('asset-cat').value = a.category;
+            document.getElementById('asset-name').value = a.name;
+            document.getElementById('asset-qty').value = a.qty || '';
+            document.getElementById('asset-val').value = a.totalVal;
+            document.getElementById('asset-form-title').innerText = "Modifier l'Actif";
+            document.getElementById('asset-submit-btn').innerText = "Mettre à jour";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function deleteAsset(id) { db.assets = db.assets.filter(a => a.id !== id); saveData(); refreshAll(); }
-        function addDebt(e) {
+
+        // Gestion Dettes (Ajout & Modification)
+        function handleDebtSubmit(e) {
             e.preventDefault();
+            const editId = document.getElementById('debt-edit-id').value;
             const name = document.getElementById('debt-name').value;
             const capital = parseFloat(document.getElementById('debt-capital').value);
             const rate = parseFloat(document.getElementById('debt-rate').value);
             const duration = parseInt(document.getElementById('debt-duration').value);
             const deferment = parseInt(document.getElementById('debt-deferment').value) || 0;
-            db.debts.push({ id: Date.now(), name, capital, rate, duration, deferment });
+
+            if (editId) {
+                db.debts = db.debts.map(d => d.id == editId ? { ...d, name, capital, rate, duration, deferment } : d);
+                document.getElementById('debt-edit-id').value = '';
+                document.getElementById('debt-form-title').innerText = "Ajouter une Dette / Emprunt";
+                document.getElementById('debt-submit-btn').innerText = "Ajouter";
+            } else {
+                db.debts.push({ id: Date.now(), name, capital, rate, duration, deferment });
+            }
             saveData(); refreshAll(); document.getElementById('debt-form').reset();
         }
+
+        function editDebt(id) {
+            const d = db.debts.find(item => item.id === id);
+            if (!d) return;
+            document.getElementById('debt-edit-id').value = d.id;
+            document.getElementById('debt-name').value = d.name;
+            document.getElementById('debt-capital').value = d.capital;
+            document.getElementById('debt-rate').value = d.rate;
+            document.getElementById('debt-duration').value = d.duration;
+            document.getElementById('debt-deferment').value = d.deferment;
+            document.getElementById('debt-form-title').innerText = "Modifier la Dette";
+            document.getElementById('debt-submit-btn').innerText = "Mettre à jour";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function deleteDebt(id) { db.debts = db.debts.filter(d => d.id !== id); saveData(); refreshAll(); }
+
         function addBudgetLine(e, type) {
             e.preventDefault();
             let name, amount;
@@ -278,13 +332,13 @@
             let totalAssets = 0;
             db.assets.forEach(a => {
                 totalAssets += a.totalVal;
-                assetBody.innerHTML += `<tr class="hover:bg-dark-700/50"><td class="p-4 font-semibold text-indigo-400">${a.category}</td><td class="p-4">${a.name}</td><td class="p-4">${a.qty || '-'}</td><td class="p-4 font-bold text-emerald-400">${a.totalVal.toLocaleString()} €</td><td class="p-4 text-right"><button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button></td></tr>`;
+                assetBody.innerHTML += `<tr class="hover:bg-dark-700/50"><td class="p-4 font-semibold text-indigo-400">${a.category}</td><td class="p-4">${a.name}</td><td class="p-4">${a.qty || '-'}</td><td class="p-4 font-bold text-emerald-400">${a.totalVal.toLocaleString()} €</td><td class="p-4 text-right space-x-3"><button onclick="editAsset(${a.id})" class="text-indigo-400 hover:text-indigo-300">Modifier</button><button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button></td></tr>`;
             });
             const debtBody = document.getElementById('debts-table-body'); debtBody.innerHTML = '';
             let totalDebts = 0;
             db.debts.forEach(d => {
                 totalDebts += d.capital;
-                debtBody.innerHTML += `<tr class="hover:bg-dark-700/50"><td class="p-4 font-semibold text-white">${d.name}</td><td class="p-4 font-bold text-rose-400">${d.capital.toLocaleString()} €</td><td class="p-4">${d.rate}%</td><td class="p-4">${d.duration} ans (différé: ${d.deferment} ans)</td><td class="p-4 text-right"><button onclick="deleteDebt(${d.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button></td></tr>`;
+                debtBody.innerHTML += `<tr class="hover:bg-dark-700/50"><td class="p-4 font-semibold text-white">${d.name}</td><td class="p-4 font-bold text-rose-400">${d.capital.toLocaleString()} €</td><td class="p-4">${d.rate}%</td><td class="p-4">${d.duration} ans (différé: ${d.deferment} ans)</td><td class="p-4 text-right space-x-3"><button onclick="editDebt(${d.id})" class="text-indigo-400 hover:text-indigo-300">Modifier</button><button onclick="deleteDebt(${d.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button></td></tr>`;
             });
             renderBudgetList('income', db.budget.income, 'text-emerald-400');
             renderBudgetList('fixed', db.budget.fixed, 'text-rose-400');
@@ -366,6 +420,11 @@
                 }
             });
         }
+
+        window.onload = function() { loadData(); refreshAll(); };
+    </script>
+</body>
+</html>
 
         window.onload = function() { loadData(); refreshAll(); };
     </script>
