@@ -89,19 +89,36 @@
                 <h3 id="asset-form-title" class="text-lg font-bold mb-4">Ajouter un Actif</h3>
                 <form id="asset-form" onsubmit="handleAssetSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                     <input type="hidden" id="asset-edit-id" value="">
-                    <select id="asset-cat" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                        <option value="PEA">Bourse (PEA)</option>
-                        <option value="CTO">Bourse (CTO)</option>
-                        <option value="Crypto">Cryptomonnaie</option>
-                        <option value="Immobilier">Immobilier</option>
-                        <option value="Cash">Cash / Compte Courant</option>
-                        <option value="Livret">Livret</option>
-                    </select>
-                    <input type="text" id="asset-name" required placeholder="Nom / Ticker" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <input type="number" step="any" id="asset-qty" placeholder="Quantité / Actions" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <input type="number" step="any" id="asset-unit-val" placeholder="Valeur Unitaire (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <input type="number" step="any" id="asset-val" required placeholder="Valeur Totale (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <button type="submit" id="asset-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Catégorie</label>
+                        <select id="asset-cat" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                            <option value="PEA">Bourse (PEA)</option>
+                            <option value="CTO">Bourse (CTO)</option>
+                            <option value="Crypto">Cryptomonnaie</option>
+                            <option value="Immobilier">Immobilier</option>
+                            <option value="Cash">Cash / Compte Courant</option>
+                            <option value="Livret">Livret</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Nom / Ticker</label>
+                        <input type="text" id="asset-name" required placeholder="ex: Bitcoin, CW8" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Quantité / Parts</label>
+                        <input type="number" step="any" id="asset-qty" placeholder="ex: 2" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Valeur d'Achat Totale (€)</label>
+                        <input type="number" step="any" id="asset-buy-val" required placeholder="ex: 1000" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Valeur Actuelle Totale (€)</label>
+                        <input type="number" step="any" id="asset-val" required placeholder="ex: 1250" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" id="asset-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                    </div>
                 </form>
             </div>
             <div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden">
@@ -110,8 +127,10 @@
                         <tr class="bg-dark-900 text-slate-400 uppercase text-xs">
                             <th class="p-4">Catégorie</th>
                             <th class="p-4">Nom</th>
-                            <th class="p-4">Quantité / Parts</th>
-                            <th class="p-4">Valeur Totale</th>
+                            <th class="p-4">Qté</th>
+                            <th class="p-4">Achat (€)</th>
+                            <th class="p-4">Valeur Actuelle</th>
+                            <th class="p-4">Plus / Moins-Value</th>
                             <th class="p-4 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -239,24 +258,23 @@
             if (tabId === 'dashboard' || tabId === 'analytics') renderCharts();
         }
 
-        // Gestion Actifs (Ajout & Modification)
+        // Gestion Actifs avec Valeur d'Achat et Plus/Moins-Values
         function handleAssetSubmit(e) {
             e.preventDefault();
             const editId = document.getElementById('asset-edit-id').value;
             const category = document.getElementById('asset-cat').value;
             const name = document.getElementById('asset-name').value;
             const qty = parseFloat(document.getElementById('asset-qty').value) || 0;
-            const unitVal = parseFloat(document.getElementById('asset-unit-val').value) || 0;
-            let totalVal = parseFloat(document.getElementById('asset-val').value) || 0;
-            if (qty > 0 && unitVal > 0 && !document.getElementById('asset-val').value) totalVal = qty * unitVal;
+            const buyVal = parseFloat(document.getElementById('asset-buy-val').value) || 0;
+            const totalVal = parseFloat(document.getElementById('asset-val').value) || 0;
 
             if (editId) {
-                db.assets = db.assets.map(a => a.id == editId ? { ...a, category, name, qty, totalVal } : a);
+                db.assets = db.assets.map(a => a.id == editId ? { ...a, category, name, qty, buyVal, totalVal } : a);
                 document.getElementById('asset-edit-id').value = '';
                 document.getElementById('asset-form-title').innerText = "Ajouter un Actif";
                 document.getElementById('asset-submit-btn').innerText = "Ajouter";
             } else {
-                db.assets.push({ id: Date.now(), category, name, qty, totalVal });
+                db.assets.push({ id: Date.now(), category, name, qty, buyVal, totalVal });
             }
             saveData(); refreshAll(); document.getElementById('asset-form').reset();
         }
@@ -268,6 +286,7 @@
             document.getElementById('asset-cat').value = a.category;
             document.getElementById('asset-name').value = a.name;
             document.getElementById('asset-qty').value = a.qty || '';
+            document.getElementById('asset-buy-val').value = a.buyVal || 0;
             document.getElementById('asset-val').value = a.totalVal;
             document.getElementById('asset-form-title').innerText = "Modifier l'Actif";
             document.getElementById('asset-submit-btn').innerText = "Mettre à jour";
@@ -276,7 +295,7 @@
 
         function deleteAsset(id) { db.assets = db.assets.filter(a => a.id !== id); saveData(); refreshAll(); }
 
-        // Gestion Dettes (Ajout & Modification)
+        // Gestion Dettes
         function handleDebtSubmit(e) {
             e.preventDefault();
             const editId = document.getElementById('debt-edit-id').value;
@@ -327,19 +346,50 @@
             if (type === 'variable') db.budget.variable = db.budget.variable.filter(i => i.id !== id);
             saveData(); refreshAll();
         }
+
         function refreshAll() {
             const assetBody = document.getElementById('assets-table-body'); assetBody.innerHTML = '';
             let totalAssets = 0;
             db.assets.forEach(a => {
                 totalAssets += a.totalVal;
-                assetBody.innerHTML += `<tr class="hover:bg-dark-700/50"><td class="p-4 font-semibold text-indigo-400">${a.category}</td><td class="p-4">${a.name}</td><td class="p-4">${a.qty || '-'}</td><td class="p-4 font-bold text-emerald-400">${a.totalVal.toLocaleString()} €</td><td class="p-4 text-right space-x-3"><button onclick="editAsset(${a.id})" class="text-indigo-400 hover:text-indigo-300">Modifier</button><button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button></td></tr>`;
+                const buyVal = a.buyVal || 0;
+                const diff = a.totalVal - buyVal;
+                const diffPercent = buyVal > 0 ? ((diff / buyVal) * 100).toFixed(2) : 0;
+                const diffColor = diff >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                const sign = diff >= 0 ? '+' : '';
+
+                assetBody.innerHTML += `
+                    <tr class="hover:bg-dark-700/50">
+                        <td class="p-4 font-semibold text-indigo-400">${a.category}</td>
+                        <td class="p-4">${a.name}</td>
+                        <td class="p-4">${a.qty || '-'}</td>
+                        <td class="p-4">${buyVal.toLocaleString()} €</td>
+                        <td class="p-4 font-bold text-white">${a.totalVal.toLocaleString()} €</td>
+                        <td class="p-4 font-semibold ${diffColor}">${sign}${diff.toLocaleString()} € (${sign}${diffPercent}%)</td>
+                        <td class="p-4 text-right space-x-3">
+                            <button onclick="editAsset(${a.id})" class="text-indigo-400 hover:text-indigo-300">Modifier</button>
+                            <button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button>
+                        </td>
+                    </tr>`;
             });
+
             const debtBody = document.getElementById('debts-table-body'); debtBody.innerHTML = '';
             let totalDebts = 0;
             db.debts.forEach(d => {
                 totalDebts += d.capital;
-                debtBody.innerHTML += `<tr class="hover:bg-dark-700/50"><td class="p-4 font-semibold text-white">${d.name}</td><td class="p-4 font-bold text-rose-400">${d.capital.toLocaleString()} €</td><td class="p-4">${d.rate}%</td><td class="p-4">${d.duration} ans (différé: ${d.deferment} ans)</td><td class="p-4 text-right space-x-3"><button onclick="editDebt(${d.id})" class="text-indigo-400 hover:text-indigo-300">Modifier</button><button onclick="deleteDebt(${d.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button></td></tr>`;
+                debtBody.innerHTML += `
+                    <tr class="hover:bg-dark-700/50">
+                        <td class="p-4 font-semibold text-white">${d.name}</td>
+                        <td class="p-4 font-bold text-rose-400">${d.capital.toLocaleString()} €</td>
+                        <td class="p-4">${d.rate}%</td>
+                        <td class="p-4">${d.duration} ans (différé: ${d.deferment} ans)</td>
+                        <td class="p-4 text-right space-x-3">
+                            <button onclick="editDebt(${d.id})" class="text-indigo-400 hover:text-indigo-300">Modifier</button>
+                            <button onclick="deleteDebt(${d.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button>
+                        </td>
+                    </tr>`;
             });
+
             renderBudgetList('income', db.budget.income, 'text-emerald-400');
             renderBudgetList('fixed', db.budget.fixed, 'text-rose-400');
             renderBudgetList('variable', db.budget.variable, 'text-amber-400');
@@ -355,12 +405,14 @@
             document.getElementById('kpi-savings').innerText = monthlySavings.toLocaleString() + ' €';
             renderCharts();
         }
+
         function renderBudgetList(type, list, colorClass) {
             const container = document.getElementById(type + '-list'); container.innerHTML = '';
             list.forEach(item => {
                 container.innerHTML += `<div class="flex justify-between items-center bg-dark-900 p-2 rounded border border-dark-700"><span>${item.name}</span><div class="flex items-center space-x-2"><span class="font-semibold ${colorClass}">${item.amount.toLocaleString()} €</span><button onclick="deleteBudgetLine('${type}', ${item.id})" class="text-slate-500 hover:text-rose-400">×</button></div></div>`;
             });
         }
+
         function renderCharts() {
             const currentYear = new Date().getFullYear();
             const categories = {};
@@ -420,11 +472,6 @@
                 }
             });
         }
-
-        window.onload = function() { loadData(); refreshAll(); };
-    </script>
-</body>
-</html>
 
         window.onload = function() { loadData(); refreshAll(); };
     </script>
