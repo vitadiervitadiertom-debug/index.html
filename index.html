@@ -125,7 +125,7 @@
         <section id="tab-portfolios" class="tab-content hidden space-y-6">
             <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
                 <h3 id="asset-form-title" class="text-lg font-bold">Ajouter un Actif</h3>
-                <form id="asset-form" onsubmit="handleAssetSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
+                <form id="asset-form" onsubmit="handleAssetSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4">
                     <input type="hidden" id="asset-edit-id" value="">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Classe d'Actif</label>
@@ -140,23 +140,27 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Nom / Ticker</label>
-                        <input type="text" id="asset-name" required placeholder="ex: ETF World" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
+                        <input type="text" id="asset-name" required placeholder="ex: Livret A" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Qté (Actions)</label>
+                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-qty">Qté (Actions)</label>
                         <input type="number" step="any" id="asset-qty" placeholder="ex: 2" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-rate">Taux (%)</label>
+                        <input type="number" step="any" id="asset-rate" placeholder="ex: 3.0" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Date d'Achat</label>
                         <input type="date" id="asset-date" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Prix d'Achat Total (€)</label>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Prix d'Achat (€)</label>
                         <input type="number" step="any" id="asset-buy-val" required placeholder="ex: 1000" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Valeur Actuelle (€)</label>
-                        <input type="number" step="any" id="asset-val" required placeholder="ex: 1060" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
+                        <input type="number" step="any" id="asset-val" required placeholder="ex: 1030" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div class="flex items-end">
                         <button type="submit" id="asset-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
@@ -382,11 +386,17 @@
         function toggleAssetFields() {
             const cat = document.getElementById('asset-cat').value;
             const qtyInput = document.getElementById('asset-qty');
+            const rateInput = document.getElementById('asset-rate');
             if (cat === 'Livret') {
                 qtyInput.value = '';
                 qtyInput.disabled = true;
+                rateInput.disabled = false;
+                rateInput.parentElement.style.opacity = '1';
             } else {
                 qtyInput.disabled = false;
+                rateInput.value = '';
+                rateInput.disabled = true;
+                rateInput.parentElement.style.opacity = '0.5';
             }
         }
 
@@ -396,17 +406,18 @@
             const category = document.getElementById('asset-cat').value;
             const name = document.getElementById('asset-name').value;
             const qty = parseFloat(document.getElementById('asset-qty').value) || 0;
+            const rate = parseFloat(document.getElementById('asset-rate').value) || 0;
             const date = document.getElementById('asset-date').value || new Date().toISOString().split('T')[0];
             const buyVal = parseFloat(document.getElementById('asset-buy-val').value) || 0;
             const totalVal = parseFloat(document.getElementById('asset-val').value) || 0;
 
             if (editId) {
-                db.assets = db.assets.map(a => a.id == editId ? { ...a, category, name, qty, date, buyVal, totalVal } : a);
+                db.assets = db.assets.map(a => a.id == editId ? { ...a, category, name, qty, rate, date, buyVal, totalVal } : a);
                 document.getElementById('asset-edit-id').value = '';
                 document.getElementById('asset-form-title').innerText = "Ajouter un Actif";
                 document.getElementById('asset-submit-btn').innerText = "Ajouter";
             } else {
-                db.assets.push({ id: Date.now(), category, name, qty, date, buyVal, totalVal });
+                db.assets.push({ id: Date.now(), category, name, qty, rate, date, buyVal, totalVal });
             }
             saveData();
             refreshAll();
@@ -422,6 +433,7 @@
             toggleAssetFields();
             document.getElementById('asset-name').value = a.name;
             document.getElementById('asset-qty').value = a.qty || '';
+            document.getElementById('asset-rate').value = a.rate || '';
             document.getElementById('asset-date').value = a.date || '';
             document.getElementById('asset-buy-val').value = a.buyVal || 0;
             document.getElementById('asset-val').value = a.totalVal;
@@ -524,10 +536,19 @@
                 } else {
                     assetsInCat.forEach(a => {
                         totalBuyValue += (a.buyVal || 0);
-                        const diff = a.totalVal - (a.buyVal || 0);
-                        const diffPercent = a.buyVal > 0 ? ((diff / a.buyVal) * 100).toFixed(2) : 0;
-                        const diffColor = diff >= 0 ? 'text-emerald-400' : 'text-rose-400';
-                        const sign = diff >= 0 ? '+' : '';
+                        let performanceText = '';
+
+                        if (a.category === 'Livret') {
+                            const rate = a.rate || 0;
+                            const annualInterest = (a.totalVal * rate) / 100;
+                            performanceText = `<span class="text-emerald-400 font-semibold">+${Math.round(annualInterest).toLocaleString()} €/an (${rate}%)</span>`;
+                        } else {
+                            const diff = a.totalVal - (a.buyVal || 0);
+                            const diffPercent = a.buyVal > 0 ? ((diff / a.buyVal) * 100).toFixed(2) : 0;
+                            const diffColor = diff >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                            const sign = diff >= 0 ? '+' : '';
+                            performanceText = `<span class="${diffColor} font-semibold">${sign}${diff.toLocaleString()} € (${sign}${diffPercent}%)</span>`;
+                        }
 
                         rowsHtml += `
                             <tr class="hover:bg-dark-800/50">
@@ -536,7 +557,7 @@
                                 <td class="p-4 text-slate-400 text-xs">${a.date || '-'}</td>
                                 <td class="p-4 text-slate-300">${(a.buyVal || 0).toLocaleString()} €</td>
                                 <td class="p-4 font-bold text-white">${a.totalVal.toLocaleString()} €</td>
-                                <td class="p-4 font-semibold ${diffColor}">${sign}${diff.toLocaleString()} € (${sign}${diffPercent}%)</td>
+                                <td class="p-4">${performanceText}</td>
                                 <td class="p-4 text-right space-x-2">
                                     <button onclick="editAsset(${a.id})" class="text-indigo-400 hover:text-indigo-300">✎</button>
                                     <button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-300">🗑</button>
@@ -560,7 +581,7 @@
                                         <th class="p-4">Date d'Achat</th>
                                         <th class="p-4">Prix d'Achat</th>
                                         <th class="p-4">Valeur Actuelle</th>
-                                        <th class="p-4">Plus / Moins-Value</th>
+                                        <th class="p-4">Performance / Intérêts</th>
                                         <th class="p-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
@@ -577,7 +598,6 @@
 
             db.debts.forEach(d => {
                 totalDebts += d.capital;
-                // Si en période de différé (mois de différé > 0), la mensualité active est 0 € pour le cashflow immédiat
                 const isUnderDeferment = (d.deferment || 0) > 0;
                 const activeMonthly = isUnderDeferment ? 0 : d.monthly;
                 totalMonthlyDebt += activeMonthly;
@@ -634,7 +654,7 @@
             document.getElementById('sum-income').innerText = totalIncome.toLocaleString() + ' €';
             document.getElementById('sum-expenses').innerText = (totalExpenses + totalMonthlyDebt).toLocaleString() + ' €';
 
-            document.getElementById('ai-advice').innerText = `Vos données sont synchronisées. Vos prêts en différé sont correctement exclus du calcul de vos charges mensuelles actuelles.`;
+            document.getElementById('ai-advice').innerText = `Vos données sont synchronisées. Les livrets calculent leurs intérêts annuels selon leur taux.`;
 
             renderCharts();
         }
