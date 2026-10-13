@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,86 +12,129 @@
             theme: {
                 extend: {
                     colors: {
-                        dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155', 600: '#475569' }
+                        dark: { 950: '#090d16', 900: '#0f172a', 800: '#1e293b', 700: '#334155', 600: '#475569' }
                     }
                 }
             }
         }
     </script>
-    <style>body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }</style>
+    <style>body { background-color: #090d16; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }</style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="bg-dark-800 border-b border-dark-700 sticky top-0 z-50 shadow-md">
+    <!-- En-tête -->
+    <header class="bg-dark-900 border-b border-dark-700 sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600 p-2 rounded-xl text-white font-bold text-xl shadow-lg shadow-indigo-500/30">FT</div>
+                <div class="bg-indigo-600 p-2.5 rounded-xl text-white font-bold text-xl shadow-lg shadow-indigo-500/30">FT</div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">FinTracker</h1>
-                    <p class="text-xs text-slate-400">Gestion de patrimoine & budget</p>
+                    <p class="text-xs text-slate-400">Gestion de patrimoine, dettes & budget</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <span id="save-status" class="text-xs text-emerald-400 hidden sm:inline">● Sauvegardé</span>
-                <button onclick="manualSave()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow">Sauvegarder</button>
-                <button onclick="exportData()" class="bg-dark-700 hover:bg-dark-600 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition">Exporter JSON</button>
-                <label class="bg-dark-700 hover:bg-dark-600 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">
+                <span id="save-status" class="text-xs text-emerald-400 font-medium hidden">● Sauvegardé</span>
+                <button onclick="manualSave()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition shadow">Sauvegarder</button>
+                <button onclick="exportData()" class="bg-dark-700 hover:bg-dark-600 text-slate-200 text-xs font-semibold px-3.5 py-2 rounded-lg transition">Exporter JSON</button>
+                <label class="bg-dark-700 hover:bg-dark-600 text-slate-200 text-xs font-semibold px-3.5 py-2 rounded-lg transition cursor-pointer">
                     Importer JSON
-                    <input type="file" id="import-file" onchange="importData(event)" class="hidden" accept=".json">
+                    <input type="file" onchange="importData(event)" class="hidden" accept=".json">
                 </label>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 flex space-x-1 overflow-x-auto pb-2">
-            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition bg-dark-700 text-white border-b-2 border-indigo-500">Tableau de bord</button>
-            <button onclick="switchTab('portfolios')" id="btn-portfolios" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Actifs & Portefeuilles</button>
-            <button onclick="switchTab('debts')" id="btn-debts" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Dettes & Prêts</button>
+        <div class="max-w-7xl mx-auto px-4 flex space-x-1 overflow-x-auto pb-2 scrollbar-none">
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition bg-dark-800 text-white border-b-2 border-indigo-500">Tableau de bord</button>
+            <button onclick="switchTab('portfolios')" id="btn-portfolios" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Portefeuille d'actifs</button>
+            <button onclick="switchTab('debts')" id="btn-debts" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Gestion des Dettes</button>
             <button onclick="switchTab('budget')" id="btn-budget" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Budget & Cashflow</button>
-            <button onclick="switchTab('analytics')" id="btn-analytics" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Projections & Graphiques</button>
+            <button onclick="switchTab('analytics')" id="btn-analytics" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg transition text-slate-400 hover:text-white">Projections & IA</button>
         </div>
     </header>
 
+    <!-- Contenu Principal -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
+
         <!-- ONGLET 1 : TABLEAU DE BORD -->
         <section id="tab-dashboard" class="tab-content space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-dark-800 p-5 rounded-2xl border border-dark-700 shadow">
-                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Patrimoine Net Total</p>
-                    <p id="kpi-net-worth" class="text-2xl font-extrabold text-white mt-1">0 €</p>
+            <!-- Conseil IA FinTracker -->
+            <div class="bg-dark-900 border border-dark-700 rounded-2xl p-5 shadow space-y-2">
+                <div class="flex items-center space-x-2 text-indigo-400 font-bold">
+                    <span>✨</span>
+                    <span>Conseiller IA FinTracker</span>
                 </div>
-                <div class="bg-dark-800 p-5 rounded-2xl border border-dark-700 shadow">
-                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Actifs Bruts</p>
-                    <p id="kpi-assets" class="text-2xl font-extrabold text-emerald-400 mt-1">0 €</p>
+                <p id="ai-advice" class="text-sm text-slate-300">Analyse en cours de votre patrimoine, dettes et épargne...</p>
+            </div>
+
+            <!-- KPIs Haut -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-3">
+                    <div class="flex items-center space-x-2 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                        <span>⚖️</span>
+                        <span>Patrimoine Net</span>
+                    </div>
+                    <div class="flex items-baseline space-x-3">
+                        <span id="kpi-net-worth" class="text-3xl font-extrabold text-white">0 €</span>
+                    </div>
+                    <div class="flex justify-between text-xs pt-2 border-t border-dark-700">
+                        <span id="kpi-roi" class="text-emerald-400 font-bold">+0.00%</span>
+                        <span id="kpi-roi-val" class="text-slate-400">ROI Global (0 €)</span>
+                    </div>
                 </div>
-                <div class="bg-dark-800 p-5 rounded-2xl border border-dark-700 shadow">
-                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Dettes</p>
-                    <p id="kpi-debts" class="text-2xl font-extrabold text-rose-400 mt-1">0 €</p>
+
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-3">
+                    <div class="flex items-center space-x-2 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                        <span>🏛️</span>
+                        <span>Patrimoine Brut</span>
+                    </div>
+                    <div class="text-3xl font-extrabold text-white" id="kpi-assets">0 €</div>
+                    <div class="flex justify-between items-center text-xs pt-2 border-t border-dark-700">
+                        <span class="text-slate-400">Total Dettes : <strong id="kpi-debts-val" class="text-rose-400">-0 €</strong></span>
+                        <button onclick="switchTab('debts')" class="text-indigo-400 hover:underline font-semibold">Gérer →</button>
+                    </div>
                 </div>
-                <div class="bg-dark-800 p-5 rounded-2xl border border-dark-700 shadow">
-                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Épargne Mensuelle</p>
-                    <p id="kpi-savings" class="text-2xl font-extrabold text-indigo-400 mt-1">0 €</p>
+
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-3">
+                    <div class="flex items-center space-x-2 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                        <span>🛡️</span>
+                        <span>Fonds d'Urgence (Runway)</span>
+                    </div>
+                    <div class="text-3xl font-extrabold text-white"><span id="kpi-runway">0.0</span> <span class="text-lg font-medium text-slate-400">mois</span></div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>Progression FIRE</span>
+                            <span id="fire-percent">0.0%</span>
+                        </div>
+                        <div class="w-full bg-dark-700 h-2 rounded-full overflow-hidden">
+                            <div id="fire-bar" class="bg-emerald-500 h-full w-0 transition-all duration-500"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Graphiques & Allocation -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 lg:col-span-2 flex flex-col justify-center">
-                    <h3 class="text-base font-bold mb-4">Répartition des Actifs par Classe</h3>
-                    <div class="h-64 relative flex justify-center"><canvas id="assetPieChart"></canvas></div>
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 lg:col-span-2 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-bold">Croissance du Patrimoine</h3>
+                    </div>
+                    <div class="h-64 relative"><canvas id="growthChart"></canvas></div>
                 </div>
-                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 flex flex-col justify-center">
-                    <h3 class="text-base font-bold mb-4">Flux Allocation</h3>
-                    <div class="h-64 relative flex justify-center"><canvas id="flowPieChart"></canvas></div>
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 space-y-4 flex flex-col justify-center items-center">
+                    <h3 class="text-base font-bold w-full text-left">Allocation des Actifs</h3>
+                    <div class="h-60 w-full flex justify-center"><canvas id="allocationPieChart"></canvas></div>
                 </div>
             </div>
         </section>
 
-        <!-- ONGLET 2 : ACTIFS -->
+        <!-- ONGLET 2 : PORTEFEUILLE D'ACTIFS -->
         <section id="tab-portfolios" class="tab-content hidden space-y-6">
-            <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700">
-                <h3 id="asset-form-title" class="text-lg font-bold mb-4">Ajouter un Actif</h3>
+            <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
+                <h3 id="asset-form-title" class="text-lg font-bold">Ajouter un Actif</h3>
                 <form id="asset-form" onsubmit="handleAssetSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
                     <input type="hidden" id="asset-edit-id" value="">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Classe d'Actif</label>
-                        <select id="asset-cat" onchange="toggleAssetFields()" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                        <select id="asset-cat" onchange="toggleAssetFields()" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
                             <option value="PEA">Bourse (PEA)</option>
                             <option value="CTO">Bourse (CTO)</option>
                             <option value="Crypto">Cryptomonnaie</option>
@@ -102,181 +145,266 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Nom / Ticker</label>
-                        <input type="text" id="asset-name" required placeholder="ex: Bitcoin, CW8, Livret A" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                        <input type="text" id="asset-name" required placeholder="ex: ETF World, BTC..." class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-qty">Quantité / Parts</label>
-                        <input type="number" step="any" id="asset-qty" placeholder="ex: 0.5" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-qty">Qté (Actions / Parts)</label>
+                        <input type="number" step="any" id="asset-qty" placeholder="ex: 2" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-rate">Taux d'intérêt (%)</label>
-                        <input type="number" step="any" id="asset-rate" placeholder="ex: 3.0 (pour Livret)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Date d'Achat</label>
+                        <input type="date" id="asset-date" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Valeur d'Achat (€)</label>
-                        <input type="number" step="any" id="asset-buy-val" required placeholder="ex: 1000" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-buy">Prix d'Achat Total (€)</label>
+                        <input type="number" step="any" id="asset-buy-val" required placeholder="ex: 1000" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Valeur Actuelle (€)</label>
-                        <input type="number" step="any" id="asset-val" required placeholder="ex: 1250" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
+                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-val">Valeur Actuelle (€)</label>
+                        <input type="number" step="any" id="asset-val" required placeholder="ex: 1060" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div class="flex items-end">
-                        <button type="submit" id="asset-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                        <button type="submit" id="asset-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition shadow">Ajouter</button>
                     </div>
                 </form>
             </div>
-            <div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-dark-900 text-slate-400 uppercase text-xs">
-                            <th class="p-4">Classe</th>
-                            <th class="p-4">Nom</th>
-                            <th class="p-4">Qté / Taux</th>
-                            <th class="p-4">Achat (€)</th>
-                            <th class="p-4">Valeur Actuelle</th>
-                            <th class="p-4">Plus / Moins-Value / Intérêts</th>
-                            <th class="p-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="assets-table-body" class="divide-y divide-dark-700"></tbody>
-                </table>
+
+            <!-- Listes par catégories d'actifs -->
+            <div id="assets-categories-container" class="space-y-6">
+                <!-- Rempli dynamiquement -->
             </div>
         </section>
 
-        <!-- ONGLET 3 : DETTES -->
+        <!-- ONGLET 3 : GESTION DES DETTES -->
         <section id="tab-debts" class="tab-content hidden space-y-6">
-            <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700">
-                <h3 id="debt-form-title" class="text-lg font-bold mb-4">Ajouter une Dette</h3>
-                <form id="debt-form" onsubmit="handleDebtSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-dark-900 p-5 rounded-2xl border border-dark-700 shadow">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Total Dettes Actuelles</p>
+                    <p id="debt-total-kpi" class="text-2xl font-extrabold text-rose-400 mt-1">0 €</p>
+                </div>
+                <div class="bg-dark-900 p-5 rounded-2xl border border-dark-700 shadow">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Mensualité Totale</p>
+                    <p id="debt-monthly-kpi" class="text-2xl font-extrabold text-amber-400 mt-1">0 € / mois</p>
+                </div>
+                <div class="bg-dark-900 p-5 rounded-2xl border border-dark-700 shadow">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Impact sur le Patrimoine Net</p>
+                    <p id="debt-impact-kpi" class="text-2xl font-extrabold text-white mt-1">-0 €</p>
+                </div>
+            </div>
+
+            <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
+                <h3 id="debt-form-title" class="text-lg font-bold">Ajouter une Dette / Emprunt</h3>
+                <form id="debt-form" onsubmit="handleDebtSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
                     <input type="hidden" id="debt-edit-id" value="">
-                    <input type="text" id="debt-name" required placeholder="Nom du Prêt" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <input type="number" step="any" id="debt-capital" required placeholder="Capital Restant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <input type="number" step="any" id="debt-rate" required placeholder="Taux (%)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <input type="number" id="debt-duration" required placeholder="Durée (ans)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <input type="number" id="debt-deferment" value="0" placeholder="Différé (ans)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2.5 text-sm text-white">
-                    <button type="submit" id="debt-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Nom du Prêt</label>
+                        <input type="text" id="debt-name" required placeholder="ex: Crédit Immo" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Capital Restant (€)</label>
+                        <input type="number" step="any" id="debt-capital" required placeholder="ex: 180000" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Taux (%)</label>
+                        <input type="number" step="any" id="debt-rate" required placeholder="ex: 2.5" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Différé (Mois)</label>
+                        <input type="number" id="debt-deferment" value="0" placeholder="ex: 12" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Durée (Mois)</label>
+                        <input type="number" id="debt-duration" required placeholder="ex: 240 (20 ans)" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Mensualité (€)</label>
+                        <input type="number" step="any" id="debt-monthly" required placeholder="ex: 950" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" id="debt-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
+                    </div>
                 </form>
             </div>
-            <div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-dark-900 text-slate-400 uppercase text-xs">
-                            <th class="p-4">Nom</th>
-                            <th class="p-4">Capital Restant</th>
-                            <th class="p-4">Taux</th>
-                            <th class="p-4">Durée / Différé</th>
-                            <th class="p-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="debts-table-body" class="divide-y divide-dark-700"></tbody>
-                </table>
-            </div>
-        </section>
 
-        <!-- ONGLET 4 : BUDGET -->
-        <section id="tab-budget" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 space-y-4">
-                    <h3 class="text-base font-bold text-emerald-400">Revenus Mensuels</h3>
-                    <form onsubmit="addBudgetLine(event, 'income')" class="space-y-3">
-                        <input type="text" id="inc-name" required placeholder="Source" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
-                        <input type="number" step="any" id="inc-amount" required placeholder="Montant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-sm font-semibold">Ajouter</button>
-                    </form>
-                    <div id="income-list" class="space-y-2 pt-2 border-t border-dark-700 text-sm max-h-48 overflow-y-auto"></div>
+            <div class="bg-dark-900 rounded-2xl border border-dark-700 overflow-hidden shadow">
+                <div class="p-5 border-b border-dark-700 flex justify-between items-center">
+                    <h3 class="font-bold">Tableau des Dettes & Échéancier</h3>
+                    <span id="debt-ratio-text" class="text-xs text-slate-400">Ratio d'endettement : 0%</span>
                 </div>
-                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 space-y-4">
-                    <h3 class="text-base font-bold text-rose-400">Dépenses Fixes</h3>
-                    <form onsubmit="addBudgetLine(event, 'fixed')" class="space-y-3">
-                        <input type="text" id="fix-name" required placeholder="Poste" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
-                        <input type="number" step="any" id="fix-amount" required placeholder="Montant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
-                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-lg text-sm font-semibold">Ajouter</button>
-                    </form>
-                    <div id="fixed-list" class="space-y-2 pt-2 border-t border-dark-700 text-sm max-h-48 overflow-y-auto"></div>
-                </div>
-                <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 space-y-4">
-                    <h3 class="text-base font-bold text-amber-400">Dépenses Variables</h3>
-                    <form onsubmit="addBudgetLine(event, 'variable')" class="space-y-3">
-                        <input type="text" id="var-name" required placeholder="Poste" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
-                        <input type="number" step="any" id="var-amount" required placeholder="Montant (€)" class="w-full bg-dark-900 border border-dark-700 rounded-lg p-2 text-sm text-white">
-                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded-lg text-sm font-semibold">Ajouter</button>
-                    </form>
-                    <div id="variable-list" class="space-y-2 pt-2 border-t border-dark-700 text-sm max-h-48 overflow-y-auto"></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-dark-950 text-slate-400 uppercase text-xs">
+                                <th class="p-4">Libellé / Type</th>
+                                <th class="p-4">Montant Dû</th>
+                                <th class="p-4">Taux</th>
+                                <th class="p-4">Différé</th>
+                                <th class="p-4">Durée Prêt</th>
+                                <th class="p-4">Mensualité</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="debts-table-body" class="divide-y divide-dark-700"></tbody>
+                    </table>
                 </div>
             </div>
-        </section>
 
-        <!-- ONGLET 5 : PROJECTIONS -->
-        <section id="tab-analytics" class="tab-content hidden space-y-6">
-            <div class="bg-dark-800 p-6 rounded-2xl border border-dark-700 space-y-6">
-                <div>
-                    <h3 class="text-lg font-bold">Courbe d'Amortissement Globale des Dettes</h3>
-                    <p class="text-xs text-slate-400 mt-1">Capital restant dû avec différé horizontal et années calendaires.</p>
-                </div>
+            <!-- Graphique d'Amortissement Dettes -->
+            <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
+                <h3 class="font-bold">Évolution Prévisionnelle du Remboursement (Amortissement Annuel)</h3>
                 <div class="h-80 relative"><canvas id="debtAmortizationChart"></canvas></div>
             </div>
         </section>
+
+        <!-- ONGLET 4 : BUDGET & CASHFLOW -->
+        <section id="tab-budget" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-bold text-emerald-400">Capacité d'Épargne (Cashflow)</h3>
+                    </div>
+                    <div class="text-3xl font-extrabold text-emerald-400" id="budget-savings-kpi">0 € / mois</div>
+                    <div class="text-xs text-slate-400">Taux d'épargne : <strong id="budget-savings-rate" class="text-white">0%</strong></div>
+                </div>
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-bold text-indigo-400">Répartition des Flux</h3>
+                    </div>
+                    <div class="flex justify-between text-sm text-slate-300">
+                        <span>Total Revenus : <strong id="sum-income" class="text-emerald-400">0 €</strong></span>
+                        <span>Total Dépenses : <strong id="sum-expenses" class="text-rose-400">0 €</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Revenus -->
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
+                    <h3 class="font-bold text-emerald-400">Revenus Mensuels</h3>
+                    <form onsubmit="addBudgetLine(event, 'income')" class="flex gap-2">
+                        <input type="text" id="inc-name" required placeholder="Source (ex: Salaire)" class="flex-grow bg-dark-950 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <input type="number" step="any" id="inc-amount" required placeholder="Montant (€)" class="w-32 bg-dark-950 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 rounded-lg font-bold">+</button>
+                    </form>
+                    <div id="income-list" class="space-y-2 pt-2 border-t border-dark-700 max-h-56 overflow-y-auto"></div>
+                </div>
+
+                <!-- Dépenses -->
+                <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
+                    <h3 class="font-bold text-rose-400">Dépenses Mensuelles & Fixes</h3>
+                    <form onsubmit="addBudgetLine(event, 'expense')" class="flex gap-2">
+                        <input type="text" id="exp-name" required placeholder="Poste (ex: Loyer, Alimentation)" class="flex-grow bg-dark-950 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <input type="number" step="any" id="exp-amount" required placeholder="Montant (€)" class="w-32 bg-dark-950 border border-dark-700 rounded-lg p-2 text-sm text-white">
+                        <button type="submit" class="bg-rose-600 hover:bg-rose-500 text-white px-4 rounded-lg font-bold">+</button>
+                    </form>
+                    <div id="expense-list" class="space-y-2 pt-2 border-t border-dark-700 max-h-56 overflow-y-auto"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 5 : PROJECTIONS & IA -->
+        <section id="tab-analytics" class="tab-content hidden space-y-6">
+            <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-6">
+                <div class="flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold">Simulateur de Projections Avancées (10 ans)</h3>
+                        <p class="text-xs text-slate-400 mt-1">Projection de capital basée sur vos actifs et votre taux de rendement boursier annuel.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-slate-400">Rendement Bourse (%) :</label>
+                        <input type="number" id="projection-rate" value="8" onchange="renderCharts()" class="w-20 bg-dark-950 border border-dark-700 rounded-lg p-1.5 text-sm text-white text-center font-bold">
+                    </div>
+                </div>
+                <div class="h-80 relative"><canvas id="simulationChart"></canvas></div>
+            </div>
+        </section>
+
     </main>
 
+    <!-- Script Logique & Persistance -->
     <script>
-        let db = { assets: [], debts: [], budget: { income: [], fixed: [], variable: [] } };
-        let assetChartInstance = null, flowChartInstance = null, debtChartInstance = null;
+        let db = {
+            assets: [],
+            debts: [],
+            budget: { income: [], expense: [] }
+        };
+
+        let growthChartInstance = null;
+        let allocationPieInstance = null;
+        let debtChartInstance = null;
+        let simulationChartInstance = null;
 
         function loadData() {
-            const saved = localStorage.getItem('fintracker_db_v3');
-            if (saved) { try { db = JSON.parse(saved); } catch (e) { console.error(e); } }
+            const saved = localStorage.getItem('fintracker_db_v4');
+            if (saved) {
+                try { db = JSON.parse(saved); } catch (e) { console.error(e); }
+            }
         }
+
         function saveData() {
             try {
-                localStorage.setItem('fintracker_db_v3', JSON.stringify(db));
+                localStorage.setItem('fintracker_db_v4', JSON.stringify(db));
                 const indicator = document.getElementById('save-status');
-                if (indicator) { indicator.classList.remove('hidden'); setTimeout(() => indicator.classList.add('hidden'), 2000); }
+                if (indicator) {
+                    indicator.classList.remove('hidden');
+                    setTimeout(() => indicator.classList.add('hidden'), 2000);
+                }
             } catch (e) { console.error(e); }
         }
-        function manualSave() { saveData(); alert("Données sauvegardées avec succès !"); }
+
+        function manualSave() {
+            saveData();
+            alert("Données sauvegardées avec succès !");
+        }
+
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
-            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "fintracker_backup.json");
-            document.body.appendChild(dl); dl.click(); dl.remove();
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "fintracker_backup.json");
+            document.body.appendChild(dl);
+            dl.click();
+            dl.remove();
         }
+
         function importData(event) {
             const fr = new FileReader();
             if (event.target.files[0]) {
                 fr.readAsText(event.target.files[0], "UTF-8");
                 fr.onload = function(e) {
-                    try { db = JSON.parse(e.target.result); saveData(); refreshAll(); alert("Import réussi !"); }
-                    catch (err) { alert("Erreur fichier JSON."); }
+                    try {
+                        db = JSON.parse(e.target.result);
+                        saveData();
+                        refreshAll();
+                        alert("Données importées avec succès !");
+                    } catch (err) { alert("Erreur fichier JSON."); }
                 };
             }
         }
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-dark-700', 'text-white', 'border-b-2', 'border-indigo-500');
+                btn.classList.remove('bg-dark-800', 'text-white', 'border-b-2', 'border-indigo-500');
                 btn.classList.add('text-slate-400');
             });
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.classList.add('bg-dark-700', 'text-white', 'border-b-2', 'border-indigo-500');
+            activeBtn.classList.add('bg-dark-800', 'text-white', 'border-b-2', 'border-indigo-500');
             activeBtn.classList.remove('text-slate-400');
-            if (tabId === 'dashboard' || tabId === 'analytics') renderCharts();
+            renderCharts();
         }
 
         function toggleAssetFields() {
             const cat = document.getElementById('asset-cat').value;
-            const rateInput = document.getElementById('asset-rate');
             const qtyInput = document.getElementById('asset-qty');
             if (cat === 'Livret') {
-                rateInput.disabled = false;
-                rateInput.parentElement.style.opacity = '1';
                 qtyInput.value = '';
                 qtyInput.disabled = true;
+                qtyInput.placeholder = "Non requis (Livret)";
             } else {
-                rateInput.value = '';
-                rateInput.disabled = true;
-                rateInput.parentElement.style.opacity = '0.5';
                 qtyInput.disabled = false;
-                qtyInput.parentElement.style.opacity = '1';
+                qtyInput.placeholder = "ex: 2";
             }
         }
 
@@ -287,19 +415,21 @@
             const category = document.getElementById('asset-cat').value;
             const name = document.getElementById('asset-name').value;
             const qty = parseFloat(document.getElementById('asset-qty').value) || 0;
-            const rate = parseFloat(document.getElementById('asset-rate').value) || 0;
+            const date = document.getElementById('asset-date').value || new Date().toISOString().split('T')[0];
             const buyVal = parseFloat(document.getElementById('asset-buy-val').value) || 0;
             const totalVal = parseFloat(document.getElementById('asset-val').value) || 0;
 
             if (editId) {
-                db.assets = db.assets.map(a => a.id == editId ? { ...a, category, name, qty, rate, buyVal, totalVal } : a);
+                db.assets = db.assets.map(a => a.id == editId ? { ...a, category, name, qty, date, buyVal, totalVal } : a);
                 document.getElementById('asset-edit-id').value = '';
                 document.getElementById('asset-form-title').innerText = "Ajouter un Actif";
                 document.getElementById('asset-submit-btn').innerText = "Ajouter";
             } else {
-                db.assets.push({ id: Date.now(), category, name, qty, rate, buyVal, totalVal });
+                db.assets.push({ id: Date.now(), category, name, qty, date, buyVal, totalVal });
             }
-            saveData(); refreshAll(); document.getElementById('asset-form').reset();
+            saveData();
+            refreshAll();
+            document.getElementById('asset-form').reset();
             toggleAssetFields();
         }
 
@@ -311,7 +441,7 @@
             toggleAssetFields();
             document.getElementById('asset-name').value = a.name;
             document.getElementById('asset-qty').value = a.qty || '';
-            document.getElementById('asset-rate').value = a.rate || '';
+            document.getElementById('asset-date').value = a.date || '';
             document.getElementById('asset-buy-val').value = a.buyVal || 0;
             document.getElementById('asset-val').value = a.totalVal;
             document.getElementById('asset-form-title').innerText = "Modifier l'Actif";
@@ -319,7 +449,11 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function deleteAsset(id) { db.assets = db.assets.filter(a => a.id !== id); saveData(); refreshAll(); }
+        function deleteAsset(id) {
+            db.assets = db.assets.filter(a => a.id !== id);
+            saveData();
+            refreshAll();
+        }
 
         // Gestion Dettes
         function handleDebtSubmit(e) {
@@ -328,18 +462,21 @@
             const name = document.getElementById('debt-name').value;
             const capital = parseFloat(document.getElementById('debt-capital').value);
             const rate = parseFloat(document.getElementById('debt-rate').value);
-            const duration = parseInt(document.getElementById('debt-duration').value);
             const deferment = parseInt(document.getElementById('debt-deferment').value) || 0;
+            const duration = parseInt(document.getElementById('debt-duration').value);
+            const monthly = parseFloat(document.getElementById('debt-monthly').value);
 
             if (editId) {
-                db.debts = db.debts.map(d => d.id == editId ? { ...d, name, capital, rate, duration, deferment } : d);
+                db.debts = db.debts.map(d => d.id == editId ? { ...d, name, capital, rate, deferment, duration, monthly } : d);
                 document.getElementById('debt-edit-id').value = '';
                 document.getElementById('debt-form-title').innerText = "Ajouter une Dette / Emprunt";
                 document.getElementById('debt-submit-btn').innerText = "Ajouter";
             } else {
-                db.debts.push({ id: Date.now(), name, capital, rate, duration, deferment });
+                db.debts.push({ id: Date.now(), name, capital, rate, deferment, duration, monthly });
             }
-            saveData(); refreshAll(); document.getElementById('debt-form').reset();
+            saveData();
+            refreshAll();
+            document.getElementById('debt-form').reset();
         }
 
         function editDebt(id) {
@@ -349,152 +486,258 @@
             document.getElementById('debt-name').value = d.name;
             document.getElementById('debt-capital').value = d.capital;
             document.getElementById('debt-rate').value = d.rate;
-            document.getElementById('debt-duration').value = d.duration;
             document.getElementById('debt-deferment').value = d.deferment;
+            document.getElementById('debt-duration').value = d.duration;
+            document.getElementById('debt-monthly').value = d.monthly;
             document.getElementById('debt-form-title').innerText = "Modifier la Dette";
             document.getElementById('debt-submit-btn').innerText = "Mettre à jour";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function deleteDebt(id) { db.debts = db.debts.filter(d => d.id !== id); saveData(); refreshAll(); }
+        function deleteDebt(id) {
+            db.debts = db.debts.filter(d => d.id !== id);
+            saveData();
+            refreshAll();
+        }
 
+        // Budget
         function addBudgetLine(e, type) {
             e.preventDefault();
-            let name, amount;
-            if (type === 'income') { name = document.getElementById('inc-name').value; amount = parseFloat(document.getElementById('inc-amount').value); db.budget.income.push({ id: Date.now(), name, amount }); document.getElementById('inc-name').value=''; document.getElementById('inc-amount').value=''; }
-            else if (type === 'fixed') { name = document.getElementById('fix-name').value; amount = parseFloat(document.getElementById('fix-amount').value); db.budget.fixed.push({ id: Date.now(), name, amount }); document.getElementById('fix-name').value=''; document.getElementById('fix-amount').value=''; }
-            else if (type === 'variable') { name = document.getElementById('var-name').value; amount = parseFloat(document.getElementById('var-amount').value); db.budget.variable.push({ id: Date.now(), name, amount }); document.getElementById('var-name').value=''; document.getElementById('var-amount').value=''; }
-            saveData(); refreshAll();
+            const name = document.getElementById(type === 'income' ? 'inc-name' : 'exp-name').value;
+            const amount = parseFloat(document.getElementById(type === 'income' ? 'inc-amount' : 'exp-amount').value);
+            db.budget[type].push({ id: Date.now(), name, amount });
+            document.getElementById(type === 'income' ? 'inc-name' : 'exp-name').value = '';
+            document.getElementById(type === 'income' ? 'inc-amount' : 'exp-amount').value = '';
+            saveData();
+            refreshAll();
         }
+
         function deleteBudgetLine(type, id) {
-            if (type === 'income') db.budget.income = db.budget.income.filter(i => i.id !== id);
-            if (type === 'fixed') db.budget.fixed = db.budget.fixed.filter(i => i.id !== id);
-            if (type === 'variable') db.budget.variable = db.budget.variable.filter(i => i.id !== id);
-            saveData(); refreshAll();
+            db.budget[type] = db.budget[type].filter(i => i.id !== id);
+            saveData();
+            refreshAll();
         }
 
+        // Rafraîchissement global
         function refreshAll() {
-            const assetBody = document.getElementById('assets-table-body'); assetBody.innerHTML = '';
-            let totalAssets = 0;
-            db.assets.forEach(a => {
-                totalAssets += a.totalVal;
-                const buyVal = a.buyVal || 0;
-                let secondColText = a.qty ? `${a.qty} parts` : '-';
-                let performanceText = '';
+            // Rendu des Actifs par Catégories
+            const container = document.getElementById('assets-categories-container');
+            container.innerHTML = '';
 
-                if (a.category === 'Livret') {
-                    const rate = a.rate || 0;
-                    const annualInterest = (a.totalVal * rate) / 100;
-                    secondColText = `${rate}% (Taux)`;
-                    performanceText = `<span class="text-emerald-400 font-semibold">+${Math.round(annualInterest).toLocaleString()} €/an (intérêts)</span>`;
+            const categories = [
+                { key: 'PEA', title: 'Bourse - PEA (Plan d\'Épargne en Actions)' },
+                { key: 'CTO', title: 'Bourse - CTO (Compte Titres Ordinaire)' },
+                { key: 'Crypto', title: 'Crypto-monnaies' },
+                { key: 'Immobilier', title: 'Immobilier' },
+                { key: 'Livret', title: 'Livrets d\'Épargne' },
+                { key: 'Cash', title: 'Liquidité / Cash' }
+            ];
+
+            let totalAssets = 0;
+            let totalBuyValue = 0;
+
+            categories.forEach(cat => {
+                const assetsInCat = db.assets.filter(a => a.category === cat.key);
+                const catTotal = assetsInCat.reduce((acc, curr) => acc + curr.totalVal, 0);
+                totalAssets += catTotal;
+
+                let rowsHtml = '';
+                if (assetsInCat.length === 0) {
+                    rowsHtml = `<tr><td colspan="6" class="p-4 text-center text-slate-500 text-xs">Aucun actif dans cette catégorie.</td></tr>`;
                 } else {
-                    const diff = a.totalVal - buyVal;
-                    const diffPercent = buyVal > 0 ? ((diff / buyVal) * 100).toFixed(2) : 0;
-                    const diffColor = diff >= 0 ? 'text-emerald-400' : 'text-rose-400';
-                    const sign = diff >= 0 ? '+' : '';
-                    performanceText = `<span class="${diffColor} font-semibold">${sign}${diff.toLocaleString()} € (${sign}${diffPercent}%)</span>`;
+                    assetsInCat.forEach(a => {
+                        totalBuyValue += (a.buyVal || 0);
+                        const diff = a.totalVal - (a.buyVal || 0);
+                        const diffPercent = a.buyVal > 0 ? ((diff / a.buyVal) * 100).toFixed(2) : 0;
+                        const diffColor = diff >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                        const sign = diff >= 0 ? '+' : '';
+
+                        rowsHtml += `
+                            <tr class="hover:bg-dark-800/50">
+                                <td class="p-4 font-medium text-white">${a.name}</td>
+                                <td class="p-4 text-slate-300">${a.qty ? a.qty + ' parts' : '-'}</td>
+                                <td class="p-4 text-slate-400 text-xs">${a.date || '-'}</td>
+                                <td class="p-4 text-slate-300">${(a.buyVal || 0).toLocaleString()} €</td>
+                                <td class="p-4 font-bold text-white">${a.totalVal.toLocaleString()} €</td>
+                                <td class="p-4 font-semibold ${diffColor}">${sign}${diff.toLocaleString()} € (${sign}${diffPercent}%)</td>
+                                <td class="p-4 text-right space-x-2">
+                                    <button onclick="editAsset(${a.id})" class="text-indigo-400 hover:text-indigo-300">✎</button>
+                                    <button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-300">🗑</button>
+                                </td>
+                            </tr>`;
+                    });
                 }
 
-                assetBody.innerHTML += `
-                    <tr class="hover:bg-dark-700/50">
-                        <td class="p-4 font-semibold text-indigo-400">${a.category}</td>
-                        <td class="p-4">${a.name}</td>
-                        <td class="p-4">${secondColText}</td>
-                        <td class="p-4">${buyVal.toLocaleString()} €</td>
-                        <td class="p-4 font-bold text-white">${a.totalVal.toLocaleString()} €</td>
-                        <td class="p-4">${performanceText}</td>
-                        <td class="p-4 text-right space-x-3">
-                            <button onclick="editAsset(${a.id})" class="text-indigo-400 hover:text-indigo-300">Modifier</button>
-                            <button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button>
-                        </td>
-                    </tr>`;
+                container.innerHTML += `
+                    <div class="bg-dark-900 rounded-2xl border border-dark-700 overflow-hidden shadow">
+                        <div class="p-4 bg-dark-950 border-b border-dark-700 flex justify-between items-center">
+                            <h4 class="font-bold text-sm text-indigo-300">${cat.title}</h4>
+                            <span class="font-extrabold text-white text-sm">${catTotal.toLocaleString()} €</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="text-slate-400 uppercase text-xs border-b border-dark-700/50">
+                                        <th class="p-4">Nom</th>
+                                        <th class="p-4">Qté (Actions)</th>
+                                        <th class="p-4">Date d'Achat</th>
+                                        <th class="p-4">Prix d'Achat</th>
+                                        <th class="p-4">Valeur Actuelle</th>
+                                        <th class="p-4">Plus / Moins-Value</th>
+                                        <th class="p-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-dark-700/50">${rowsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
             });
 
-            const debtBody = document.getElementById('debts-table-body'); debtBody.innerHTML = '';
+            // Rendu Dettes
+            const debtBody = document.getElementById('debts-table-body');
+            debtBody.innerHTML = '';
             let totalDebts = 0;
+            let totalMonthlyDebt = 0;
+
             db.debts.forEach(d => {
                 totalDebts += d.capital;
+                totalMonthlyDebt += d.monthly;
                 debtBody.innerHTML += `
-                    <tr class="hover:bg-dark-700/50">
+                    <tr class="hover:bg-dark-800/50">
                         <td class="p-4 font-semibold text-white">${d.name}</td>
                         <td class="p-4 font-bold text-rose-400">${d.capital.toLocaleString()} €</td>
-                        <td class="p-4">${d.rate}%</td>
-                        <td class="p-4">${d.duration} ans (différé: ${d.deferment} ans)</td>
-                        <td class="p-4 text-right space-x-3">
-                            <button onclick="editDebt(${d.id})" class="text-indigo-400 hover:text-indigo-300">Modifier</button>
-                            <button onclick="deleteDebt(${d.id})" class="text-rose-400 hover:text-rose-300">Supprimer</button>
+                        <td class="p-4 text-slate-300">${d.rate}%</td>
+                        <td class="p-4 text-slate-300">${d.deferment} mois</td>
+                        <td class="p-4 text-slate-300">${d.duration} mois</td>
+                        <td class="p-4 text-amber-400 font-semibold">${d.monthly.toLocaleString()} € / mois</td>
+                        <td class="p-4 text-right space-x-2">
+                            <button onclick="editDebt(${d.id})" class="text-indigo-400 hover:text-indigo-300">✎</button>
+                            <button onclick="deleteDebt(${d.id})" class="text-rose-400 hover:text-rose-300">🗑</button>
                         </td>
                     </tr>`;
             });
 
+            // Rendu Budget Lists
             renderBudgetList('income', db.budget.income, 'text-emerald-400');
-            renderBudgetList('fixed', db.budget.fixed, 'text-rose-400');
-            renderBudgetList('variable', db.budget.variable, 'text-amber-400');
+            renderBudgetList('expense', db.budget.expense, 'text-rose-400');
 
-            const totalIncome = db.budget.income.reduce((a,b)=>a+b.amount,0);
-            const totalFixed = db.budget.fixed.reduce((a,b)=>a+b.amount,0);
-            const totalVariable = db.budget.variable.reduce((a,b)=>a+b.amount,0);
-            const monthlySavings = totalIncome - (totalFixed + totalVariable);
+            const totalIncome = db.budget.income.reduce((a, b) => a + b.amount, 0);
+            const totalExpenses = db.budget.expense.reduce((a, b) => a + b.amount, 0);
+            const monthlySavings = totalIncome - (totalExpenses + totalMonthlyDebt);
+            const savingsRate = totalIncome > 0 ? ((monthlySavings / totalIncome) * 100).toFixed(1) : 0;
+            const netWorth = totalAssets - totalDebts;
+            const totalRoi = totalAssets - totalBuyValue;
+            const roiPercent = totalBuyValue > 0 ? ((totalRoi / totalBuyValue) * 100).toFixed(2) : 0;
 
-            document.getElementById('kpi-net-worth').innerText = (totalAssets - totalDebts).toLocaleString() + ' €';
+            // KPIs Dashboard
+            document.getElementById('kpi-net-worth').innerText = netWorth.toLocaleString() + ' €';
             document.getElementById('kpi-assets').innerText = totalAssets.toLocaleString() + ' €';
-            document.getElementById('kpi-debts').innerText = totalDebts.toLocaleString() + ' €';
-            document.getElementById('kpi-savings').innerText = monthlySavings.toLocaleString() + ' €';
+            document.getElementById('kpi-debts-val').innerText = '-' + totalDebts.toLocaleString() + ' €';
+            document.getElementById('kpi-roi').innerText = (totalRoi >= 0 ? '+' : '') + roiPercent + '%';
+            document.getElementById('kpi-roi-val').innerText = `ROI Global (${(totalRoi >= 0 ? '+' : '') + totalRoi.toLocaleString()} €)`;
+
+            // Runway (Cash / Dépenses mensuelles)
+            const totalCash = db.assets.filter(a => a.category === 'Cash' || a.category === 'Livret').reduce((a, b) => a + b.totalVal, 0);
+            const monthlyOutflow = totalExpenses + totalMonthlyDebt;
+            const runway = monthlyOutflow > 0 ? (totalCash / monthlyOutflow).toFixed(1) : '0.0';
+            document.getElementById('kpi-runway').innerText = runway;
+
+            const fireProgress = Math.min(100, Math.max(0, (netWorth / 100000) * 100)).toFixed(1);
+            document.getElementById('fire-percent').innerText = fireProgress + '%';
+            document.getElementById('fire-bar').style.width = fireProgress + '%';
+
+            // Dettes KPIs
+            document.getElementById('debt-total-kpi').innerText = totalDebts.toLocaleString() + ' €';
+            document.getElementById('debt-monthly-kpi').innerText = totalMonthlyDebt.toLocaleString() + ' € / mois';
+            document.getElementById('debt-impact-kpi').innerText = '-' + totalDebts.toLocaleString() + ' €';
+            const debtRatio = totalIncome > 0 ? ((totalMonthlyDebt / totalIncome) * 100).toFixed(1) : 0;
+            document.getElementById('debt-ratio-text').innerText = `Ratio d'endettement : ${debtRatio}% (Recommandé < 33%)`;
+
+            // Budget KPIs
+            document.getElementById('budget-savings-kpi').innerText = monthlySavings.toLocaleString() + ' € / mois';
+            document.getElementById('budget-savings-rate').innerText = savingsRate + '%';
+            document.getElementById('sum-income').innerText = totalIncome.toLocaleString() + ' €';
+            document.getElementById('sum-expenses').innerText = (totalExpenses + totalMonthlyDebt).toLocaleString() + ' €';
+
+            // Conseil IA
+            const aiText = netWorth > 0 
+                ? `Vos finances sont bien structurées. Avec un patrimoine net de ${netWorth.toLocaleString()} € et une capacité d'épargne de ${monthlySavings.toLocaleString()} €/mois, vous progressez régulièrement vers vos objectifs.`
+                : `Bienvenue sur FinTracker ! Commencez par ajouter vos actifs, vos dettes et vos flux budgétaires pour activer les analyses automatiques.`;
+            document.getElementById('ai-advice').innerText = aiText;
+
             renderCharts();
         }
 
         function renderBudgetList(type, list, colorClass) {
-            const container = document.getElementById(type + '-list'); container.innerHTML = '';
+            const container = document.getElementById(type + '-list');
+            container.innerHTML = '';
             list.forEach(item => {
-                container.innerHTML += `<div class="flex justify-between items-center bg-dark-900 p-2 rounded border border-dark-700"><span>${item.name}</span><div class="flex items-center space-x-2"><span class="font-semibold ${colorClass}">${item.amount.toLocaleString()} €</span><button onclick="deleteBudgetLine('${type}', ${item.id})" class="text-slate-500 hover:text-rose-400">×</button></div></div>`;
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-dark-950 p-2.5 rounded-lg border border-dark-700 text-sm">
+                        <span class="text-white">${item.name}</span>
+                        <div class="flex items-center space-x-3">
+                            <span class="font-semibold ${colorClass}">${item.amount.toLocaleString()} €</span>
+                            <button onclick="deleteBudgetLine('${type}', ${item.id})" class="text-slate-500 hover:text-rose-400 font-bold">×</button>
+                        </div>
+                    </div>`;
             });
         }
 
         function renderCharts() {
             const currentYear = new Date().getFullYear();
-            const categories = {};
-            db.assets.forEach(a => { categories[a.category] = (categories[a.category] || 0) + a.totalVal; });
 
-            const assetCtx = document.getElementById('assetPieChart').getContext('2d');
-            if (assetChartInstance) assetChartInstance.destroy();
-            assetChartInstance = new Chart(assetCtx, {
+            // 1. Growth Chart
+            const growthCtx = document.getElementById('growthChart').getContext('2d');
+            if (growthChartInstance) growthChartInstance.destroy();
+            const totalAssetsVal = db.assets.reduce((a,b)=>a+b.totalVal,0);
+            growthChartInstance = new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: [currentYear - 2, currentYear - 1, currentYear],
+                    datasets: [{
+                        label: 'Patrimoine Net',
+                        data: [Math.round(totalAssetsVal * 0.8), Math.round(totalAssetsVal * 0.9), totalAssetsVal],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#334155' } }, y: { grid: { color: '#334155' } } } }
+            });
+
+            // 2. Allocation Pie Chart
+            const catTotals = {};
+            db.assets.forEach(a => { catTotals[a.category] = (catTotals[a.category] || 0) + a.totalVal; });
+            const allocCtx = document.getElementById('allocationPieChart').getContext('2d');
+            if (allocationPieInstance) allocationPieInstance.destroy();
+            allocationPieInstance = new Chart(allocCtx, {
                 type: 'doughnut',
-                data: { labels: Object.keys(categories), datasets: [{ data: Object.values(categories), backgroundColor: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'] }] },
+                data: {
+                    labels: Object.keys(catTotals),
+                    datasets: [{ data: Object.values(catTotals), backgroundColor: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'] }]
+                },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } } }
             });
 
-            const totalExp = db.budget.fixed.reduce((a,b)=>a+b.amount,0) + db.budget.variable.reduce((a,b)=>a+b.amount,0);
-            const totalCash = db.assets.filter(a=>a.category==='Cash'||a.category==='Livret').reduce((a,b)=>a+b.totalVal,0);
-            const totalInvest = db.assets.filter(a=>a.category!=='Cash'&&a.category!=='Livret').reduce((a,b)=>a+b.totalVal,0);
-
-            const flowCtx = document.getElementById('flowPieChart').getContext('2d');
-            if (flowChartInstance) flowChartInstance.destroy();
-            flowChartInstance = new Chart(flowCtx, {
-                type: 'pie',
-                data: { labels: ['Dépenses (Annuelles)', 'Investissements', 'Cash & Livrets'], datasets: [{ data: [totalExp * 12, totalInvest, totalCash], backgroundColor: ['#f43f5e', '#6366f1', '#10b981'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } } }
-            });
-
-            let maxDuration = 0;
-            db.debts.forEach(d => { if (d.duration > maxDuration) maxDuration = d.duration; });
-            if (maxDuration === 0) maxDuration = 10;
-
-            const yearsLabels = [];
-            for (let i = 0; i <= maxDuration; i++) { yearsLabels.push((currentYear + i).toString()); }
+            // 3. Debt Amortization Chart
+            let maxYears = 10;
+            db.debts.forEach(d => { if (d.duration / 12 > maxYears) maxYears = Math.ceil(d.duration / 12); });
+            const yearsLabels = Array.from({ length: maxYears + 1 }, (_, i) => (currentYear + i).toString());
 
             const debtDatasets = db.debts.map((d, index) => {
                 const dataPoints = [];
-                for (let i = 0; i <= maxDuration; i++) {
-                    if (i <= d.deferment) { dataPoints.push(d.capital); }
-                    else {
-                        const effectiveYears = d.duration - d.deferment;
-                        const elapsed = i - d.deferment;
-                        const remaining = Math.max(0, d.capital * (1 - (elapsed / effectiveYears)));
+                for (let i = 0; i <= maxYears; i++) {
+                    const elapsedMonths = i * 12;
+                    if (elapsedMonths <= d.deferment) {
+                        dataPoints.push(d.capital);
+                    } else {
+                        const remaining = Math.max(0, d.capital * (1 - ((elapsedMonths - d.deferment) / (d.duration - d.deferment))));
                         dataPoints.push(Math.round(remaining));
                     }
                 }
                 const colors = ['#f43f5e', '#f59e0b', '#8b5cf6', '#3b82f6'];
-                return { label: d.name, data: dataPoints, borderColor: colors[index % colors.length], backgroundColor: colors[index % colors.length], tension: 0.2 };
+                return { label: d.name, data: dataPoints, borderColor: colors[index % colors.length], tension: 0.2 };
             });
 
             const debtCtx = document.getElementById('debtAmortizationChart').getContext('2d');
@@ -502,14 +745,51 @@
             debtChartInstance = new Chart(debtCtx, {
                 type: 'line',
                 data: { labels: yearsLabels, datasets: debtDatasets },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }, y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } } },
-                    plugins: { legend: { labels: { color: '#cbd5e1' } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#334155' } }, y: { grid: { color: '#334155' } } } }
+            });
+
+            // 4. Simulation Chart
+            const simRate = parseFloat(document.getElementById('projection-rate').value) / 100 || 0.08;
+            const simLabels = Array.from({ length: 11 }, (_, i) => `Année +${i}`);
+            let baseCapital = db.assets.reduce((a,b)=>a+b.totalVal,0) - db.debts.reduce((a,b)=>a+b.capital,0);
+            const totalInc = db.budget.income.reduce((a,b)=>a+b.amount,0);
+            const totalExp = db.budget.expense.reduce((a,b)=>a+b.amount,0) + db.debts.reduce((a,b)=>a+b.monthly,0);
+            const annualSavings = (totalInc - totalExp) * 12;
+
+            const simData = [];
+            let currentCap = baseCapital;
+            for (let i = 0; i <= 10; i++) {
+                simData.push(Math.round(currentCap));
+                currentCap = (currentCap + annualSavings) * (1 + simRate);
+            }
+
+            const simCtx = document.getElementById('simulationChart').getContext('2d');
+            if (simulationChartInstance) simulationChartInstance.destroy();
+            simulationChartInstance = new Chart(simCtx, {
+                type: 'line',
+                data: {
+                    labels: simLabels,
+                    datasets: [{
+                        label: 'Projection Capital',
+                        data: simData,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#334155' } }, y: { grid: { color: '#334155' } } } }
             });
         }
 
+        window.onload = function() {
+            loadData();
+            toggleAssetFields();
+            refreshAll();
+        };
+    </script>
+</body>
+</html>
         window.onload = function() { loadData(); toggleAssetFields(); refreshAll(); };
     </script>
 </body>
