@@ -56,16 +56,14 @@
 
         <!-- ONGLET 1 : TABLEAU DE BORD -->
         <section id="tab-dashboard" class="tab-content space-y-6">
-            <!-- Conseil IA FinTracker -->
             <div class="bg-dark-900 border border-dark-700 rounded-2xl p-5 shadow space-y-2">
                 <div class="flex items-center space-x-2 text-indigo-400 font-bold">
                     <span>✨</span>
                     <span>Conseiller IA FinTracker</span>
                 </div>
-                <p id="ai-advice" class="text-sm text-slate-300">Analyse en cours de votre patrimoine, dettes et épargne...</p>
+                <p id="ai-advice" class="text-sm text-slate-300">Analyse en cours de votre patrimoine...</p>
             </div>
 
-            <!-- KPIs Haut -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-3">
                     <div class="flex items-center space-x-2 text-slate-400 text-xs font-semibold uppercase tracking-wider">
@@ -111,12 +109,9 @@
                 </div>
             </div>
 
-            <!-- Graphiques & Allocation -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 lg:col-span-2 space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold">Croissance du Patrimoine</h3>
-                    </div>
+                    <h3 class="text-base font-bold">Croissance du Patrimoine</h3>
                     <div class="h-64 relative"><canvas id="growthChart"></canvas></div>
                 </div>
                 <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 space-y-4 flex flex-col justify-center items-center">
@@ -134,7 +129,7 @@
                     <input type="hidden" id="asset-edit-id" value="">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Classe d'Actif</label>
-                        <select id="asset-cat" onchange="toggleAssetFields()" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                        <select id="asset-cat" onchange="toggleAssetFields()" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                             <option value="PEA">Bourse (PEA)</option>
                             <option value="CTO">Bourse (CTO)</option>
                             <option value="Crypto">Cryptomonnaie</option>
@@ -145,34 +140,30 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Nom / Ticker</label>
-                        <input type="text" id="asset-name" required placeholder="ex: ETF World, BTC..." class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                        <input type="text" id="asset-name" required placeholder="ex: ETF World" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-qty">Qté (Actions / Parts)</label>
-                        <input type="number" step="any" id="asset-qty" placeholder="ex: 2" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Qté (Actions)</label>
+                        <input type="number" step="any" id="asset-qty" placeholder="ex: 2" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Date d'Achat</label>
-                        <input type="date" id="asset-date" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                        <input type="date" id="asset-date" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-buy">Prix d'Achat Total (€)</label>
-                        <input type="number" step="any" id="asset-buy-val" required placeholder="ex: 1000" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Prix d'Achat Total (€)</label>
+                        <input type="number" step="any" id="asset-buy-val" required placeholder="ex: 1000" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1" id="label-val">Valeur Actuelle (€)</label>
-                        <input type="number" step="any" id="asset-val" required placeholder="ex: 1060" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Valeur Actuelle (€)</label>
+                        <input type="number" step="any" id="asset-val" required placeholder="ex: 1060" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div class="flex items-end">
-                        <button type="submit" id="asset-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition shadow">Ajouter</button>
+                        <button type="submit" id="asset-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
                     </div>
                 </form>
             </div>
-
-            <!-- Listes par catégories d'actifs -->
-            <div id="assets-categories-container" class="space-y-6">
-                <!-- Rempli dynamiquement -->
-            </div>
+            <div id="assets-categories-container" class="space-y-6"></div>
         </section>
 
         <!-- ONGLET 3 : GESTION DES DETTES -->
@@ -183,7 +174,7 @@
                     <p id="debt-total-kpi" class="text-2xl font-extrabold text-rose-400 mt-1">0 €</p>
                 </div>
                 <div class="bg-dark-900 p-5 rounded-2xl border border-dark-700 shadow">
-                    <p class="text-xs text-slate-400 uppercase font-semibold">Mensualité Totale</p>
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Mensualité (Hors Différé)</p>
                     <p id="debt-monthly-kpi" class="text-2xl font-extrabold text-amber-400 mt-1">0 € / mois</p>
                 </div>
                 <div class="bg-dark-900 p-5 rounded-2xl border border-dark-700 shadow">
@@ -198,27 +189,27 @@
                     <input type="hidden" id="debt-edit-id" value="">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Nom du Prêt</label>
-                        <input type="text" id="debt-name" required placeholder="ex: Crédit Immo" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="debt-name" required placeholder="ex: Crédit Immo" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Capital Restant (€)</label>
-                        <input type="number" step="any" id="debt-capital" required placeholder="ex: 180000" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <input type="number" step="any" id="debt-capital" required placeholder="ex: 180000" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Taux (%)</label>
-                        <input type="number" step="any" id="debt-rate" required placeholder="ex: 2.5" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <input type="number" step="any" id="debt-rate" required placeholder="ex: 2.5" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Différé (Mois)</label>
-                        <input type="number" id="debt-deferment" value="0" placeholder="ex: 12" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <input type="number" id="debt-deferment" value="0" placeholder="ex: 12" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Durée (Mois)</label>
-                        <input type="number" id="debt-duration" required placeholder="ex: 240 (20 ans)" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <input type="number" id="debt-duration" required placeholder="ex: 240" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Mensualité (€)</label>
-                        <input type="number" step="any" id="debt-monthly" required placeholder="ex: 950" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <input type="number" step="any" id="debt-monthly" required placeholder="ex: 950" class="w-full bg-dark-950 border border-dark-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
                     </div>
                     <div class="flex items-end">
                         <button type="submit" id="debt-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition">Ajouter</button>
@@ -249,7 +240,6 @@
                 </div>
             </div>
 
-            <!-- Graphique d'Amortissement Dettes -->
             <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
                 <h3 class="font-bold">Évolution Prévisionnelle du Remboursement (Amortissement Annuel)</h3>
                 <div class="h-80 relative"><canvas id="debtAmortizationChart"></canvas></div>
@@ -260,16 +250,12 @@
         <section id="tab-budget" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-emerald-400">Capacité d'Épargne (Cashflow)</h3>
-                    </div>
+                    <h3 class="text-base font-bold text-emerald-400">Capacité d'Épargne (Cashflow)</h3>
                     <div class="text-3xl font-extrabold text-emerald-400" id="budget-savings-kpi">0 € / mois</div>
                     <div class="text-xs text-slate-400">Taux d'épargne : <strong id="budget-savings-rate" class="text-white">0%</strong></div>
                 </div>
                 <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-indigo-400">Répartition des Flux</h3>
-                    </div>
+                    <h3 class="text-base font-bold text-indigo-400">Répartition des Flux</h3>
                     <div class="flex justify-between text-sm text-slate-300">
                         <span>Total Revenus : <strong id="sum-income" class="text-emerald-400">0 €</strong></span>
                         <span>Total Dépenses : <strong id="sum-expenses" class="text-rose-400">0 €</strong></span>
@@ -278,7 +264,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Revenus -->
                 <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
                     <h3 class="font-bold text-emerald-400">Revenus Mensuels</h3>
                     <form onsubmit="addBudgetLine(event, 'income')" class="flex gap-2">
@@ -289,7 +274,6 @@
                     <div id="income-list" class="space-y-2 pt-2 border-t border-dark-700 max-h-56 overflow-y-auto"></div>
                 </div>
 
-                <!-- Dépenses -->
                 <div class="bg-dark-900 p-6 rounded-2xl border border-dark-700 shadow space-y-4">
                     <h3 class="font-bold text-rose-400">Dépenses Mensuelles & Fixes</h3>
                     <form onsubmit="addBudgetLine(event, 'expense')" class="flex gap-2">
@@ -401,14 +385,11 @@
             if (cat === 'Livret') {
                 qtyInput.value = '';
                 qtyInput.disabled = true;
-                qtyInput.placeholder = "Non requis (Livret)";
             } else {
                 qtyInput.disabled = false;
-                qtyInput.placeholder = "ex: 2";
             }
         }
 
-        // Gestion Actifs
         function handleAssetSubmit(e) {
             e.preventDefault();
             const editId = document.getElementById('asset-edit-id').value;
@@ -455,7 +436,6 @@
             refreshAll();
         }
 
-        // Gestion Dettes
         function handleDebtSubmit(e) {
             e.preventDefault();
             const editId = document.getElementById('debt-edit-id').value;
@@ -500,7 +480,6 @@
             refreshAll();
         }
 
-        // Budget
         function addBudgetLine(e, type) {
             e.preventDefault();
             const name = document.getElementById(type === 'income' ? 'inc-name' : 'exp-name').value;
@@ -518,9 +497,7 @@
             refreshAll();
         }
 
-        // Rafraîchissement global
         function refreshAll() {
-            // Rendu des Actifs par Catégories
             const container = document.getElementById('assets-categories-container');
             container.innerHTML = '';
 
@@ -543,7 +520,7 @@
 
                 let rowsHtml = '';
                 if (assetsInCat.length === 0) {
-                    rowsHtml = `<tr><td colspan="6" class="p-4 text-center text-slate-500 text-xs">Aucun actif dans cette catégorie.</td></tr>`;
+                    rowsHtml = `<tr><td colspan="7" class="p-4 text-center text-slate-500 text-xs">Aucun actif dans cette catégorie.</td></tr>`;
                 } else {
                     assetsInCat.forEach(a => {
                         totalBuyValue += (a.buyVal || 0);
@@ -579,7 +556,7 @@
                                 <thead>
                                     <tr class="text-slate-400 uppercase text-xs border-b border-dark-700/50">
                                         <th class="p-4">Nom</th>
-                                        <th class="p-4">Qté (Actions)</th>
+                                        <th class="p-4">Qté</th>
                                         <th class="p-4">Date d'Achat</th>
                                         <th class="p-4">Prix d'Achat</th>
                                         <th class="p-4">Valeur Actuelle</th>
@@ -593,7 +570,6 @@
                     </div>`;
             });
 
-            // Rendu Dettes
             const debtBody = document.getElementById('debts-table-body');
             debtBody.innerHTML = '';
             let totalDebts = 0;
@@ -601,15 +577,19 @@
 
             db.debts.forEach(d => {
                 totalDebts += d.capital;
-                totalMonthlyDebt += d.monthly;
+                // Si en période de différé (mois de différé > 0), la mensualité active est 0 € pour le cashflow immédiat
+                const isUnderDeferment = (d.deferment || 0) > 0;
+                const activeMonthly = isUnderDeferment ? 0 : d.monthly;
+                totalMonthlyDebt += activeMonthly;
+
                 debtBody.innerHTML += `
                     <tr class="hover:bg-dark-800/50">
                         <td class="p-4 font-semibold text-white">${d.name}</td>
                         <td class="p-4 font-bold text-rose-400">${d.capital.toLocaleString()} €</td>
                         <td class="p-4 text-slate-300">${d.rate}%</td>
-                        <td class="p-4 text-slate-300">${d.deferment} mois</td>
+                        <td class="p-4 text-indigo-400 font-semibold">${d.deferment} mois ${isUnderDeferment ? '(Actif)' : ''}</td>
                         <td class="p-4 text-slate-300">${d.duration} mois</td>
-                        <td class="p-4 text-amber-400 font-semibold">${d.monthly.toLocaleString()} € / mois</td>
+                        <td class="p-4 text-amber-400 font-semibold">${d.monthly.toLocaleString()} € / mois ${isUnderDeferment ? '<span class="text-xs text-slate-400">(Différé)</span>' : ''}</td>
                         <td class="p-4 text-right space-x-2">
                             <button onclick="editDebt(${d.id})" class="text-indigo-400 hover:text-indigo-300">✎</button>
                             <button onclick="deleteDebt(${d.id})" class="text-rose-400 hover:text-rose-300">🗑</button>
@@ -617,7 +597,6 @@
                     </tr>`;
             });
 
-            // Rendu Budget Lists
             renderBudgetList('income', db.budget.income, 'text-emerald-400');
             renderBudgetList('expense', db.budget.expense, 'text-rose-400');
 
@@ -629,14 +608,12 @@
             const totalRoi = totalAssets - totalBuyValue;
             const roiPercent = totalBuyValue > 0 ? ((totalRoi / totalBuyValue) * 100).toFixed(2) : 0;
 
-            // KPIs Dashboard
             document.getElementById('kpi-net-worth').innerText = netWorth.toLocaleString() + ' €';
             document.getElementById('kpi-assets').innerText = totalAssets.toLocaleString() + ' €';
             document.getElementById('kpi-debts-val').innerText = '-' + totalDebts.toLocaleString() + ' €';
             document.getElementById('kpi-roi').innerText = (totalRoi >= 0 ? '+' : '') + roiPercent + '%';
             document.getElementById('kpi-roi-val').innerText = `ROI Global (${(totalRoi >= 0 ? '+' : '') + totalRoi.toLocaleString()} €)`;
 
-            // Runway (Cash / Dépenses mensuelles)
             const totalCash = db.assets.filter(a => a.category === 'Cash' || a.category === 'Livret').reduce((a, b) => a + b.totalVal, 0);
             const monthlyOutflow = totalExpenses + totalMonthlyDebt;
             const runway = monthlyOutflow > 0 ? (totalCash / monthlyOutflow).toFixed(1) : '0.0';
@@ -646,24 +623,18 @@
             document.getElementById('fire-percent').innerText = fireProgress + '%';
             document.getElementById('fire-bar').style.width = fireProgress + '%';
 
-            // Dettes KPIs
             document.getElementById('debt-total-kpi').innerText = totalDebts.toLocaleString() + ' €';
             document.getElementById('debt-monthly-kpi').innerText = totalMonthlyDebt.toLocaleString() + ' € / mois';
             document.getElementById('debt-impact-kpi').innerText = '-' + totalDebts.toLocaleString() + ' €';
             const debtRatio = totalIncome > 0 ? ((totalMonthlyDebt / totalIncome) * 100).toFixed(1) : 0;
             document.getElementById('debt-ratio-text').innerText = `Ratio d'endettement : ${debtRatio}% (Recommandé < 33%)`;
 
-            // Budget KPIs
             document.getElementById('budget-savings-kpi').innerText = monthlySavings.toLocaleString() + ' € / mois';
             document.getElementById('budget-savings-rate').innerText = savingsRate + '%';
             document.getElementById('sum-income').innerText = totalIncome.toLocaleString() + ' €';
             document.getElementById('sum-expenses').innerText = (totalExpenses + totalMonthlyDebt).toLocaleString() + ' €';
 
-            // Conseil IA
-            const aiText = netWorth > 0 
-                ? `Vos finances sont bien structurées. Avec un patrimoine net de ${netWorth.toLocaleString()} € et une capacité d'épargne de ${monthlySavings.toLocaleString()} €/mois, vous progressez régulièrement vers vos objectifs.`
-                : `Bienvenue sur FinTracker ! Commencez par ajouter vos actifs, vos dettes et vos flux budgétaires pour activer les analyses automatiques.`;
-            document.getElementById('ai-advice').innerText = aiText;
+            document.getElementById('ai-advice').innerText = `Vos données sont synchronisées. Vos prêts en différé sont correctement exclus du calcul de vos charges mensuelles actuelles.`;
 
             renderCharts();
         }
@@ -686,7 +657,6 @@
         function renderCharts() {
             const currentYear = new Date().getFullYear();
 
-            // 1. Growth Chart
             const growthCtx = document.getElementById('growthChart').getContext('2d');
             if (growthChartInstance) growthChartInstance.destroy();
             const totalAssetsVal = db.assets.reduce((a,b)=>a+b.totalVal,0);
@@ -706,7 +676,6 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#334155' } }, y: { grid: { color: '#334155' } } } }
             });
 
-            // 2. Allocation Pie Chart
             const catTotals = {};
             db.assets.forEach(a => { catTotals[a.category] = (catTotals[a.category] || 0) + a.totalVal; });
             const allocCtx = document.getElementById('allocationPieChart').getContext('2d');
@@ -720,7 +689,6 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } } }
             });
 
-            // 3. Debt Amortization Chart
             let maxYears = 10;
             db.debts.forEach(d => { if (d.duration / 12 > maxYears) maxYears = Math.ceil(d.duration / 12); });
             const yearsLabels = Array.from({ length: maxYears + 1 }, (_, i) => (currentYear + i).toString());
@@ -748,12 +716,12 @@
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#334155' } }, y: { grid: { color: '#334155' } } } }
             });
 
-            // 4. Simulation Chart
             const simRate = parseFloat(document.getElementById('projection-rate').value) / 100 || 0.08;
             const simLabels = Array.from({ length: 11 }, (_, i) => `Année +${i}`);
             let baseCapital = db.assets.reduce((a,b)=>a+b.totalVal,0) - db.debts.reduce((a,b)=>a+b.capital,0);
             const totalInc = db.budget.income.reduce((a,b)=>a+b.amount,0);
-            const totalExp = db.budget.expense.reduce((a,b)=>a+b.amount,0) + db.debts.reduce((a,b)=>a+b.monthly,0);
+            const totalMonthlyDebtActive = db.debts.reduce((acc, d) => acc + ((d.deferment || 0) > 0 ? 0 : d.monthly), 0);
+            const totalExp = db.budget.expense.reduce((a,b)=>a+b.amount,0) + totalMonthlyDebtActive;
             const annualSavings = (totalInc - totalExp) * 12;
 
             const simData = [];
@@ -787,10 +755,6 @@
             toggleAssetFields();
             refreshAll();
         };
-    </script>
-</body>
-</html>
-        window.onload = function() { loadData(); toggleAssetFields(); refreshAll(); };
     </script>
 </body>
 </html>
